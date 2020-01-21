@@ -12,7 +12,7 @@
 #include "PluginEditor.h"
 
 //==============================================================================
-GainSliderAudioProcessor::GainSliderAudioProcessor()
+JuceNrProjectAudioProcessor::JuceNrProjectAudioProcessor()
 #ifndef JucePlugin_PreferredChannelConfigurations
      : AudioProcessor (BusesProperties()
                      #if ! JucePlugin_IsMidiEffect
@@ -26,13 +26,13 @@ GainSliderAudioProcessor::GainSliderAudioProcessor()
 {
 }
 
-GainSliderAudioProcessor::~GainSliderAudioProcessor()
+JuceNrProjectAudioProcessor::~JuceNrProjectAudioProcessor()
 {
 }
 
 //==============================================================================
 
-AudioProcessorValueTreeState::ParameterLayout GainSliderAudioProcessor::createParameterLayout()
+AudioProcessorValueTreeState::ParameterLayout JuceNrProjectAudioProcessor::createParameterLayout()
 {
     std::vector <std::unique_ptr<RangedAudioParameter>> params;
     
@@ -43,12 +43,12 @@ AudioProcessorValueTreeState::ParameterLayout GainSliderAudioProcessor::createPa
     return { params.begin(), params.end() };
 }
 
-const String GainSliderAudioProcessor::getName() const
+const String JuceNrProjectAudioProcessor::getName() const
 {
     return JucePlugin_Name;
 }
 
-bool GainSliderAudioProcessor::acceptsMidi() const
+bool JuceNrProjectAudioProcessor::acceptsMidi() const
 {
    #if JucePlugin_WantsMidiInput
     return true;
@@ -57,7 +57,7 @@ bool GainSliderAudioProcessor::acceptsMidi() const
    #endif
 }
 
-bool GainSliderAudioProcessor::producesMidi() const
+bool JuceNrProjectAudioProcessor::producesMidi() const
 {
    #if JucePlugin_ProducesMidiOutput
     return true;
@@ -66,7 +66,7 @@ bool GainSliderAudioProcessor::producesMidi() const
    #endif
 }
 
-bool GainSliderAudioProcessor::isMidiEffect() const
+bool JuceNrProjectAudioProcessor::isMidiEffect() const
 {
    #if JucePlugin_IsMidiEffect
     return true;
@@ -75,50 +75,50 @@ bool GainSliderAudioProcessor::isMidiEffect() const
    #endif
 }
 
-double GainSliderAudioProcessor::getTailLengthSeconds() const
+double JuceNrProjectAudioProcessor::getTailLengthSeconds() const
 {
     return 0.0;
 }
 
-int GainSliderAudioProcessor::getNumPrograms()
+int JuceNrProjectAudioProcessor::getNumPrograms()
 {
     return 1;   // NB: some hosts don't cope very well if you tell them there are 0 programs,
                 // so this should be at least 1, even if you're not really implementing programs.
 }
 
-int GainSliderAudioProcessor::getCurrentProgram()
+int JuceNrProjectAudioProcessor::getCurrentProgram()
 {
     return 0;
 }
 
-void GainSliderAudioProcessor::setCurrentProgram (int index)
+void JuceNrProjectAudioProcessor::setCurrentProgram (int index)
 {
 }
 
-const String GainSliderAudioProcessor::getProgramName (int index)
+const String JuceNrProjectAudioProcessor::getProgramName (int index)
 {
     return {};
 }
 
-void GainSliderAudioProcessor::changeProgramName (int index, const String& newName)
+void JuceNrProjectAudioProcessor::changeProgramName (int index, const String& newName)
 {
 }
 
 //==============================================================================
-void GainSliderAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
+void JuceNrProjectAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
 {
     // Use this method as the place to do any pre-playback
     // initialisation that you need..
 }
 
-void GainSliderAudioProcessor::releaseResources()
+void JuceNrProjectAudioProcessor::releaseResources()
 {
     // When playback stops, you can use this as an opportunity to free up any
     // spare memory, etc.
 }
 
 #ifndef JucePlugin_PreferredChannelConfigurations
-bool GainSliderAudioProcessor::isBusesLayoutSupported (const BusesLayout& layouts) const
+bool JuceNrProjectAudioProcessor::isBusesLayoutSupported (const BusesLayout& layouts) const
 {
   #if JucePlugin_IsMidiEffect
     ignoreUnused (layouts);
@@ -141,7 +141,7 @@ bool GainSliderAudioProcessor::isBusesLayoutSupported (const BusesLayout& layout
 }
 #endif
 
-void GainSliderAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBuffer& midiMessages)
+void JuceNrProjectAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBuffer& midiMessages)
 {
     ScopedNoDenormals noDenormals;
     auto totalNumInputChannels  = getTotalNumInputChannels();
@@ -178,25 +178,25 @@ void GainSliderAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBuf
 }
 
 //==============================================================================
-bool GainSliderAudioProcessor::hasEditor() const
+bool JuceNrProjectAudioProcessor::hasEditor() const
 {
     return true; // (change this to false if you choose to not supply an editor)
 }
 
-AudioProcessorEditor* GainSliderAudioProcessor::createEditor()
+AudioProcessorEditor* JuceNrProjectAudioProcessor::createEditor()
 {
-    return new GainSliderAudioProcessorEditor (*this);
+    return new JuceNrProjectAudioProcessorEditor (*this);
 }
 
 //==============================================================================
-void GainSliderAudioProcessor::getStateInformation (MemoryBlock& destData)
+void JuceNrProjectAudioProcessor::getStateInformation (MemoryBlock& destData)
 {
     // You should use this method to store your parameters in the memory block.
     // You could do that either as raw data, or use the XML or ValueTree classes
     // as intermediaries to make it easy to save and load complex data.
 }
 
-void GainSliderAudioProcessor::setStateInformation (const void* data, int sizeInBytes)
+void JuceNrProjectAudioProcessor::setStateInformation (const void* data, int sizeInBytes)
 {
     // You should use this method to restore your parameters from this memory block,
     // whose contents will have been created by the getStateInformation() call.
@@ -206,5 +206,5 @@ void GainSliderAudioProcessor::setStateInformation (const void* data, int sizeIn
 // This creates new instances of the plugin..
 AudioProcessor* JUCE_CALLTYPE createPluginFilter()
 {
-    return new GainSliderAudioProcessor();
+    return new JuceNrProjectAudioProcessor();
 }

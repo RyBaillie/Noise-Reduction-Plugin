@@ -17,12 +17,12 @@
 //==============================================================================
 /**
 */
-class GainSliderAudioProcessor  : public AudioProcessor
+class JuceNrProjectAudioProcessor  : public AudioProcessor
 {
 public:
     //==============================================================================
-    GainSliderAudioProcessor();
-    ~GainSliderAudioProcessor();
+    JuceNrProjectAudioProcessor();
+    ~JuceNrProjectAudioProcessor();
 
     //==============================================================================
     void prepareToPlay (double sampleRate, int samplesPerBlock) override;
@@ -63,5 +63,5 @@ public:
 
 private:
     //==============================================================================
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (GainSliderAudioProcessor)
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (JuceNrProjectAudioProcessor)
 };

@@ -12,48 +12,58 @@
 #include "PluginEditor.h"
 
 //==============================================================================
-GainSliderAudioProcessorEditor::GainSliderAudioProcessorEditor (GainSliderAudioProcessor& p)
+JuceNrProjectAudioProcessorEditor::JuceNrProjectAudioProcessorEditor (JuceNrProjectAudioProcessor& p)
     : AudioProcessorEditor (&p), processor (p)
 {
 	enum RadioButtonIds {
-		EncodingButtons = 1001
+		EncodingButtons = 1001,
+		AlgorithmButtons = 1002
 	};
 
     // Make sure that before the constructor has finished, you've set the
     // editor's size to whatever you need it to be.
-    sliderValue = std::make_unique<AudioProcessorValueTreeState::SliderAttachment>(processor.treeState, GAIN_ID, gainSlider);
+    sliderValue = std::make_unique<AudioProcessorValueTreeState::SliderAttachment>(processor.treeState, GAIN_ID, JuceNrProject);
     
     setSize (200, 400);
 
-    gainSlider.setSliderStyle(Slider::SliderStyle::LinearVertical);
-    gainSlider.setTextBoxStyle(Slider::TextBoxBelow, true, 100, 25);
-    gainSlider.setRange(-48.0f, 0.0f);
-    gainSlider.setValue(-15.0f);
-    addAndMakeVisible(&gainSlider);
-
+	//Encode Toggle Adjustment
 	encodeToggle.setRadioGroupId(EncodingButtons);
 	decodeToggle.setRadioGroupId(EncodingButtons);
 	addAndMakeVisible(encodeToggle);
 	addAndMakeVisible(decodeToggle);
+
+	// NR Type Toggle Adjustment
+	typeBToggle.setRadioGroupId(AlgorithmButtons);
+	TypeCToggle.setRadioGroupId(AlgorithmButtons);
+	addAndMakeVisible(typeBToggle);
+	addAndMakeVisible(TypeCToggle);
+
+	// Slider Adjustement
+	JuceNrProject.setSliderStyle(Slider::SliderStyle::LinearHorizontal);
+	JuceNrProject.setTextBoxStyle(Slider::TextBoxBelow, true, 100, 25);
+	JuceNrProject.setRange(-48.0f, 0.0f);
+	JuceNrProject.setValue(-15.0f);
+	addAndMakeVisible(&JuceNrProject);
+
 }
 
-GainSliderAudioProcessorEditor::~GainSliderAudioProcessorEditor()
+JuceNrProjectAudioProcessorEditor::~JuceNrProjectAudioProcessorEditor()
 {
 }
 
 //==============================================================================
-void GainSliderAudioProcessorEditor::paint (Graphics& g)
+void JuceNrProjectAudioProcessorEditor::paint (Graphics& g)
 {
     // (Our component is opaque, so we must completely fill the background with a solid colour)
     g.fillAll (getLookAndFeel().findColour (ResizableWindow::backgroundColourId));
    
 }
 
-void GainSliderAudioProcessorEditor::resized()
+void JuceNrProjectAudioProcessorEditor::resized()
 {
     // This is generally where you'll want to lay out the positions of any
     // subcomponents in your editor..
     
-    gainSlider.setBounds (getLocalBounds());
+    JuceNrProject.setBounds (getLocalBounds());
 
 }

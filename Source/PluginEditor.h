@@ -16,11 +16,11 @@
 //==============================================================================
 /**
 */
-class GainSliderAudioProcessorEditor  : public AudioProcessorEditor
+class JuceNrProjectAudioProcessorEditor  : public AudioProcessorEditor
 {
 public:
-    GainSliderAudioProcessorEditor (GainSliderAudioProcessor&);
-    ~GainSliderAudioProcessorEditor();
+    JuceNrProjectAudioProcessorEditor (JuceNrProjectAudioProcessor&);
+    ~JuceNrProjectAudioProcessorEditor();
 
     //==============================================================================
     void paint (Graphics&) override;
@@ -29,19 +29,22 @@ public:
 private:
     // This reference is provided as a quick way for your editor to
     // access the processor object that created it.
-    GainSliderAudioProcessor& processor;
+    JuceNrProjectAudioProcessor& processor;
 
-    Slider gainSlider;
+    Slider JuceNrProject;
 
 	GroupComponent modes;
 	ToggleButton encodeToggle;
 	ToggleButton decodeToggle;
+	ToggleButton typeBToggle;
+	ToggleButton TypeCToggle;
 
     
 public:
 
     std::unique_ptr <AudioProcessorValueTreeState::SliderAttachment> sliderValue;
 	std::unique_ptr <AudioProcessorValueTreeState::ButtonAttachment> encodeSelection;
+	std::unique_ptr <AudioProcessorValueTreeState::ButtonAttachment> AlgorithmSelection;
 
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (GainSliderAudioProcessorEditor)
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (JuceNrProjectAudioProcessorEditor)
 };
