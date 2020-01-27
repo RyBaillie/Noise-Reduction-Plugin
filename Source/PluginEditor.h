@@ -31,7 +31,7 @@ private:
     // access the processor object that created it.
     JuceNrProjectAudioProcessor& processor;
 
-    Slider JuceNrProject;
+    Slider GainSlider;
 
 	GroupComponent modes;
 	ToggleButton encodeToggle;
@@ -44,6 +44,7 @@ public:
 
     std::unique_ptr <AudioProcessorValueTreeState::SliderAttachment> sliderValue;
 	std::unique_ptr <AudioProcessorValueTreeState::ButtonAttachment> encodeSelection;
+	std::unique_ptr <AudioProcessorValueTreeState::ButtonAttachment> decodeSelection;
 	std::unique_ptr <AudioProcessorValueTreeState::ButtonAttachment> AlgorithmSelection;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (JuceNrProjectAudioProcessorEditor)
