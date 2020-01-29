@@ -31,13 +31,17 @@ private:
     // access the processor object that created it.
     JuceNrProjectAudioProcessor& processor;
 
-    Slider GainSlider;
+    Slider gainSlider;
 
 	GroupComponent modes;
-	ToggleButton encodeToggle;
-	ToggleButton decodeToggle;
-	ToggleButton typeBToggle;
-	ToggleButton TypeCToggle;
+	TextButton encodeToggle {"Encode"};
+	TextButton decodeToggle {"Decode"};
+	TextButton typeBToggle  {"Type B"};
+	TextButton typeCToggle  {"Type C"};
+
+	Label gainLabel;
+	Label conversionModeLabel;
+	Label algorithmModeLabel;
 
     
 public:

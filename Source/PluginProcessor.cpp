@@ -36,7 +36,7 @@ AudioProcessorValueTreeState::ParameterLayout JuceNrProjectAudioProcessor::creat
 {
     std::vector <std::unique_ptr<RangedAudioParameter>> params;
     
-    auto gainParam = std::make_unique<AudioParameterFloat>(GAIN_ID, GAIN_NAME, -48.0f, 0.0f, -15.0f);
+    auto gainParam = std::make_unique<AudioParameterFloat>("gain", "Gain", -48.0f, 0.0f, -15.0f);
     
     params.push_back(std::move(gainParam));
 
@@ -168,7 +168,7 @@ void JuceNrProjectAudioProcessor::processBlock (AudioBuffer<float>& buffer, Midi
 
         // ..do something to the data...
         
-        auto sliderGainValue = treeState.getRawParameterValue(GAIN_ID);
+        auto sliderGainValue = treeState.getRawParameterValue("gain");
 
         for (int sample = 0; sample < buffer.getNumSamples(); ++sample)
         {
