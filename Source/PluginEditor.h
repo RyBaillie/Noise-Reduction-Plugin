@@ -32,6 +32,7 @@ private:
     JuceNrProjectAudioProcessor& processor;
 
     Slider gainSlider;
+	Slider filterSlider;
 
 	GroupComponent modes;
 	TextButton encodeToggle {"Encode"};
@@ -40,16 +41,18 @@ private:
 	TextButton typeCToggle  {"Type C"};
 
 	Label gainLabel;
+	Label filterLabel;
 	Label conversionModeLabel;
 	Label algorithmModeLabel;
 
     
 public:
 
-    std::unique_ptr <AudioProcessorValueTreeState::SliderAttachment> sliderValue;
+    std::unique_ptr <AudioProcessorValueTreeState::SliderAttachment> gainSliderValue;
+	std::unique_ptr <AudioProcessorValueTreeState::SliderAttachment> filterSliderValue;
 	std::unique_ptr <AudioProcessorValueTreeState::ButtonAttachment> encodeSelection;
 	std::unique_ptr <AudioProcessorValueTreeState::ButtonAttachment> decodeSelection;
-	std::unique_ptr <AudioProcessorValueTreeState::ButtonAttachment> AlgorithmSelection;
+	std::unique_ptr <AudioProcessorValueTreeState::ButtonAttachment> algorithmSelection;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (JuceNrProjectAudioProcessorEditor)
 };

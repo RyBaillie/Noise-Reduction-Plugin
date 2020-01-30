@@ -24,6 +24,7 @@ JuceNrProjectAudioProcessor::JuceNrProjectAudioProcessor()
                        ), treeState (*this, nullptr, "PARAMETER", createParameterLayout())
 #endif
 {
+	
 }
 
 JuceNrProjectAudioProcessor::~JuceNrProjectAudioProcessor()
@@ -35,11 +36,20 @@ JuceNrProjectAudioProcessor::~JuceNrProjectAudioProcessor()
 AudioProcessorValueTreeState::ParameterLayout JuceNrProjectAudioProcessor::createParameterLayout()
 {
     std::vector <std::unique_ptr<RangedAudioParameter>> params;
-    
-    auto gainParam = std::make_unique<AudioParameterFloat>("gain", "Gain", -48.0f, 0.0f, -15.0f);
-    
+    auto gainParam = std::make_unique<AudioParameterFloat>( "gain", //ID
+															"Gain", //Name
+															-48.0f, //Min
+															0.0f,	//Max
+															-15.0f	//Default
+		); 
+	auto filterParam = std::make_unique<AudioParameterFloat>(	"cutoff",	//ID
+																"Cutoff",	//Name
+																20.0f,		//Min
+																20000.0f,	//Max
+																5000.0f		//Default
+		);
+	params.push_back(std::move(filterParam));
     params.push_back(std::move(gainParam));
-
     return { params.begin(), params.end() };
 }
 

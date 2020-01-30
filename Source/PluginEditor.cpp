@@ -22,7 +22,8 @@ JuceNrProjectAudioProcessorEditor::JuceNrProjectAudioProcessorEditor (JuceNrProj
 		AlgorithmButtons = 1002
 	};
 
-    sliderValue = std::make_unique<AudioProcessorValueTreeState::SliderAttachment>(processor.treeState, "gain", gainSlider);
+    gainSliderValue = std::make_unique<AudioProcessorValueTreeState::SliderAttachment>(processor.treeState, "gain", gainSlider);
+	filterSliderValue = std::make_unique<AudioProcessorValueTreeState::SliderAttachment>(processor.treeState, "filter", filterSlider);
 	encodeSelection = std::make_unique<AudioProcessorValueTreeState::ButtonAttachment>(processor.treeState, "encode", encodeToggle);
 	decodeSelection = std::make_unique<AudioProcessorValueTreeState::ButtonAttachment>(processor.treeState, "decode", decodeToggle);
 
@@ -57,17 +58,28 @@ JuceNrProjectAudioProcessorEditor::JuceNrProjectAudioProcessorEditor (JuceNrProj
 	addAndMakeVisible(typeBToggle);
 	addAndMakeVisible(typeCToggle);
 
-	// Slider Adjustement
+	// Gain Slider Adjustement
 
 	addAndMakeVisible(gainLabel);
 	gainLabel.setText("Gain", dontSendNotification);
-	gainLabel.attachToComponent(&gainSlider, false);
+	gainLabel.attachToComponent(&gainSlider, true);
 
 	gainSlider.setSliderStyle(Slider::SliderStyle::LinearHorizontal);
 	gainSlider.setTextBoxStyle(Slider::TextBoxBelow, true, 100, 25);
-	gainSlider.setRange(-48.0f, 0.0f);
-	gainSlider.setValue(-15.0f);
 	addAndMakeVisible(&gainSlider);
+
+	// Gain Slider Adjustement
+
+	addAndMakeVisible(filterLabel);
+	filterLabel.setText("Filter Cutoff", dontSendNotification);
+	filterLabel.attachToComponent(&filterSlider, true);
+
+	filterSlider.setSliderStyle(Slider::SliderStyle::LinearHorizontal);
+	filterSlider.setTextBoxStyle(Slider::TextBoxBelow, true, 100, 25);
+	filterSlider.setRange(20.0f, 20000.0f);
+	filterSlider.setSkewFactorFromMidPoint(500.);
+	filterSlider.setValue(1000.0f);
+	addAndMakeVisible(&filterSlider);
 
 }
 
@@ -97,6 +109,7 @@ void JuceNrProjectAudioProcessorEditor::resized()
 	auto areaItemHeight = area.getHeight() / 10;
 
 	gainSlider.setBounds(area.removeFromTop(areaItemHeight));
+	filterSlider.setBounds(area.removeFromTop(areaItemHeight));
 
 	auto sidebarItemHeight = sidebar.getHeight() / 10;
 	auto sidebarItemMargin = sidebar.getWidth() * 0.02;
