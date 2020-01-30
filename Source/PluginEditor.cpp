@@ -62,7 +62,7 @@ JuceNrProjectAudioProcessorEditor::JuceNrProjectAudioProcessorEditor (JuceNrProj
 
 	addAndMakeVisible(gainLabel);
 	gainLabel.setText("Gain", dontSendNotification);
-	gainLabel.attachToComponent(&gainSlider, true);
+	gainLabel.attachToComponent(&gainSlider, false);
 
 	gainSlider.setSliderStyle(Slider::SliderStyle::LinearHorizontal);
 	gainSlider.setTextBoxStyle(Slider::TextBoxBelow, true, 100, 25);
@@ -72,7 +72,7 @@ JuceNrProjectAudioProcessorEditor::JuceNrProjectAudioProcessorEditor (JuceNrProj
 
 	addAndMakeVisible(filterLabel);
 	filterLabel.setText("Filter Cutoff", dontSendNotification);
-	filterLabel.attachToComponent(&filterSlider, true);
+	filterLabel.attachToComponent(&filterSlider, false);
 
 	filterSlider.setSliderStyle(Slider::SliderStyle::LinearHorizontal);
 	filterSlider.setTextBoxStyle(Slider::TextBoxBelow, true, 100, 25);
