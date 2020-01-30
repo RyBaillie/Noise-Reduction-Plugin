@@ -117,8 +117,21 @@ void JuceNrProjectAudioProcessor::changeProgramName (int index, const String& ne
 //==============================================================================
 void JuceNrProjectAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
 {
-    // Use this method as the place to do any pre-playback
-    // initialisation that you need..
+	spec.maximumBlockSize = samplesPerBlock;
+	spec.sampleRate = sampleRate;
+	spec.numChannels = getMainBusNumOutputChannels();
+
+	updateFilter();
+}
+
+void JuceNrProjectAudioProcessor::updateFilter() {
+
+	//make filter High Pass
+	stateVariableFilter.reset();
+	stateVariableFilter.state->type = dsp::StateVariableFilter::Parameters<float>::Type::highPass;
+	stateVariableFilter.state->setCutOffFrequency(currentSampleRate, 500);
+	stateVariableFilter.prepare(spec);
+
 }
 
 void JuceNrProjectAudioProcessor::releaseResources()
@@ -172,6 +185,12 @@ void JuceNrProjectAudioProcessor::processBlock (AudioBuffer<float>& buffer, Midi
     // the samples and the outer loop is handling the channels.
     // Alternatively, you can process the samples with the channels
     // interleaved by keeping the same state.
+
+	dsp::AudioBlock<float> block(buffer);
+
+	updateFilter();
+	stateVariableFilter.process(dsp::ProcessContextReplacing<float>(block));
+
     for (int channel = 0; channel < totalNumInputChannels; ++channel)
     {
         auto* channelData = buffer.getWritePointer (channel);
