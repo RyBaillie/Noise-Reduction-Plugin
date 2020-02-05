@@ -92,6 +92,25 @@ JuceNrProjectAudioProcessorEditor::JuceNrProjectAudioProcessorEditor (JuceNrProj
 	filterSlider.setValue(1000.0f);
 	addAndMakeVisible(&filterSlider);
 
+	// Compressor Threshold Slider Adjustement
+
+	addAndMakeVisible(compressorThresholdLabel);
+	compressorThresholdLabel.setText("Compressor Threshold", dontSendNotification);
+	compressorThresholdLabel.attachToComponent(&compressorThresholdSlider, false);
+
+	compressorThresholdSlider.setSliderStyle(Slider::SliderStyle::LinearHorizontal);
+	compressorThresholdSlider.setTextBoxStyle(Slider::TextBoxBelow, true, 100, 25);
+	addAndMakeVisible(&compressorThresholdSlider);
+
+	// Compressor Ratio Slider Adjustement
+
+	addAndMakeVisible(compressorRatioLabel);
+	compressorRatioLabel.setText("Compressor Ratio", dontSendNotification);
+	compressorRatioLabel.attachToComponent(&compressorRatioSlider, false);
+
+	compressorRatioSlider.setSliderStyle(Slider::SliderStyle::LinearHorizontal);
+	compressorRatioSlider.setTextBoxStyle(Slider::TextBoxBelow, true, 100, 25);
+	addAndMakeVisible(&compressorRatioSlider);
 }
 
 JuceNrProjectAudioProcessorEditor::~JuceNrProjectAudioProcessorEditor()
@@ -121,6 +140,8 @@ void JuceNrProjectAudioProcessorEditor::resized()
 
 	gainSlider.setBounds(area.removeFromTop(areaItemHeight));
 	decibelLimitSlider.setBounds(area.removeFromTop(areaItemHeight));
+	compressorThresholdSlider.setBounds(area.removeFromTop(areaItemHeight));
+	compressorRatioSlider.setBounds(area.removeFromTop(areaItemHeight));
 	filterSlider.setBounds(area.removeFromTop(areaItemHeight));
 
 	auto sidebarItemHeight = sidebar.getHeight() / 10;

@@ -63,6 +63,13 @@ public:
 	void setRelease(float release);
 	//===============================================================================
 
+	// Compressor //===================================================================
+	float getThreshold();
+	float getRatio();
+	void setThreshold(float threshold);
+	void setRatio(float ratio);
+	//================================================================================
+
 	dsp::ProcessSpec spec;
 	double currentSampleRate;
     
@@ -88,6 +95,17 @@ private:
 	void updateAttackRelease();
 	float envelopeCalculate(float time);
 	//===============================================================================
+
+	// Compressor //==================================================================
+	const float BOUND_LOGARITHM = -96.0f;
+	const float BOUND_LINEAR = decibelToAmplitude(BOUND_LOGARITHM);
+
+	float m_Threshold = 0.0f;
+	float m_Ratio = 1.0f;
+
+	float amplitudeToDecibel(float amplitude);
+	float decibelToAmplitude(float decibel);
+	//================================================================================
 
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (JuceNrProjectAudioProcessor)
