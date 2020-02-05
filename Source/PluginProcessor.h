@@ -58,6 +58,11 @@ public:
 
 	void updateFilter();
 
+	// Envelope //====================================================================
+	void setAttack(float attack);
+	void setRelease(float release);
+	//===============================================================================
+
 	dsp::ProcessSpec spec;
 	double currentSampleRate;
     
@@ -68,6 +73,21 @@ public:
 private:
 
 	dsp::ProcessorDuplicator<dsp::StateVariableFilter::Filter<float>, dsp::StateVariableFilter::Parameters<float>> stateVariableFilter;
+
+	float dbLimit = 1;
+
+	void setDecibelLimit(float db);
+
+	// Envelope //====================================================================
+	float m_Envelope = 0.0f;
+	float m_Attack = 0.0f;
+	float m_AttackInMilliseconds = 10.0f;
+	float m_Release = 0.0f;
+	float m_ReleaseInMilliseconds = 100.0f;
+
+	void updateAttackRelease();
+	float envelopeCalculate(float time);
+	//===============================================================================
 
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (JuceNrProjectAudioProcessor)

@@ -10,6 +10,7 @@
 
 #include "PluginProcessor.h"
 #include "PluginEditor.h"
+#include <cmath>
 
 //==============================================================================
 JuceNrProjectAudioProcessor::JuceNrProjectAudioProcessor()
@@ -24,7 +25,7 @@ JuceNrProjectAudioProcessor::JuceNrProjectAudioProcessor()
                        ), treeState (*this, nullptr, "PARAMETER", createParameterLayout())
 #endif
 {
-	
+
 }
 
 JuceNrProjectAudioProcessor::~JuceNrProjectAudioProcessor()
@@ -48,8 +49,15 @@ AudioProcessorValueTreeState::ParameterLayout JuceNrProjectAudioProcessor::creat
 																20000.0f,	//Max
 																5000.0f		//Default
 		);
+	auto decibelLimitParam = std::make_unique<AudioParameterFloat>(	"dbLimit",	//ID
+																"DbLimit",	//Name
+																-200.0f,	//Min
+																200.0f,		//Max
+																1.0f		//Default
+		);
 	params.push_back(std::move(filterParam));
     params.push_back(std::move(gainParam));
+	params.push_back(std::move(decibelLimitParam));
     return { params.begin(), params.end() };
 }
 
@@ -122,6 +130,7 @@ void JuceNrProjectAudioProcessor::prepareToPlay (double sampleRate, int samplesP
 	spec.numChannels = getMainBusNumOutputChannels();
 
 	updateFilter();
+	updateAttackRelease();
 }
 
 void JuceNrProjectAudioProcessor::updateFilter() {
@@ -198,10 +207,27 @@ void JuceNrProjectAudioProcessor::processBlock (AudioBuffer<float>& buffer, Midi
         // ..do something to the data...
         
         auto sliderGainValue = treeState.getRawParameterValue("gain");
+		auto sliderDecibelValue = treeState.getRawParameterValue("dbLimit");
 
-        for (int sample = 0; sample < buffer.getNumSamples(); ++sample)
+        for (int sampleCount = 0; sampleCount < buffer.getNumSamples(); ++sampleCount)
         {
-            channelData [sample] = buffer.getSample(channel, sample) * Decibels::decibelsToGain(*sliderGainValue);
+
+			if (buffer.getSample(channel, sampleCount) > m_Envelope) {
+				m_Envelope = m_Envelope + m_Attack * (buffer.getSample(channel, sampleCount) - m_Envelope);
+			}
+			else if (buffer.getSample(channel, sampleCount) < m_Envelope) {
+				m_Envelope = m_Envelope + m_Release * (buffer.getSample(channel, sampleCount) - m_Envelope);
+			}
+
+			float db = Decibels::gainToDecibels(fabs(m_Envelope));
+			setDecibelLimit(*sliderDecibelValue);
+
+			if(db <= dbLimit) {
+				channelData[sampleCount] = buffer.getSample(channel, sampleCount) * Decibels::decibelsToGain(*sliderGainValue);
+			}
+			else {
+				channelData[sampleCount] = buffer.getSample(channel, sampleCount);
+			}
         }
     }
 }
@@ -236,4 +262,32 @@ void JuceNrProjectAudioProcessor::setStateInformation (const void* data, int siz
 AudioProcessor* JUCE_CALLTYPE createPluginFilter()
 {
     return new JuceNrProjectAudioProcessor();
+}
+
+// Envelope ====================================================================
+void JuceNrProjectAudioProcessor::setAttack(float attack) {
+	m_AttackInMilliseconds = attack;
+	updateAttackRelease();
+}
+
+void JuceNrProjectAudioProcessor::setRelease(float release) {
+	m_ReleaseInMilliseconds = release;
+	updateAttackRelease();
+}
+
+float JuceNrProjectAudioProcessor::envelopeCalculate(float time) {
+	if (time <= 0.0f || spec.sampleRate <= 0.0f) {
+		return 1.0f;
+	}
+	else return 1.0f - exp(-1.0f / (time * 0.001f * spec.sampleRate));
+}
+
+void JuceNrProjectAudioProcessor::updateAttackRelease() {
+	m_Attack = envelopeCalculate(m_AttackInMilliseconds);
+	m_Release = envelopeCalculate(m_ReleaseInMilliseconds);
+}
+//==============================================================================
+
+void JuceNrProjectAudioProcessor::setDecibelLimit(float db) {
+	dbLimit = db;
 }

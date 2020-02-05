@@ -32,6 +32,7 @@ private:
     JuceNrProjectAudioProcessor& processor;
 
     Slider gainSlider;
+	Slider decibelLimitSlider;
 	Slider filterSlider;
 
 	GroupComponent modes;
@@ -41,6 +42,7 @@ private:
 	TextButton typeCToggle  {"Type C"};
 
 	Label gainLabel;
+	Label decibelLimitLabel;
 	Label filterLabel;
 	Label conversionModeLabel;
 	Label algorithmModeLabel;
@@ -49,6 +51,7 @@ private:
 public:
 
     std::unique_ptr <AudioProcessorValueTreeState::SliderAttachment> gainSliderValue;
+	std::unique_ptr <AudioProcessorValueTreeState::SliderAttachment> decibelLimitSliderValue;
 	std::unique_ptr <AudioProcessorValueTreeState::SliderAttachment> filterSliderValue;
 	std::unique_ptr <AudioProcessorValueTreeState::ButtonAttachment> encodeSelection;
 	std::unique_ptr <AudioProcessorValueTreeState::ButtonAttachment> decodeSelection;

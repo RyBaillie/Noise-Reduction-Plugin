@@ -23,6 +23,7 @@ JuceNrProjectAudioProcessorEditor::JuceNrProjectAudioProcessorEditor (JuceNrProj
 	};
 
     gainSliderValue = std::make_unique<AudioProcessorValueTreeState::SliderAttachment>(processor.treeState, "gain", gainSlider);
+	gainSliderValue = std::make_unique<AudioProcessorValueTreeState::SliderAttachment>(processor.treeState, "dbLimit", decibelLimitSlider);
 	filterSliderValue = std::make_unique<AudioProcessorValueTreeState::SliderAttachment>(processor.treeState, "filter", filterSlider);
 	encodeSelection = std::make_unique<AudioProcessorValueTreeState::ButtonAttachment>(processor.treeState, "encode", encodeToggle);
 	decodeSelection = std::make_unique<AudioProcessorValueTreeState::ButtonAttachment>(processor.treeState, "decode", decodeToggle);
@@ -56,7 +57,7 @@ JuceNrProjectAudioProcessorEditor::JuceNrProjectAudioProcessorEditor (JuceNrProj
 	typeBToggle.setToggleState(true, false);
 
 	addAndMakeVisible(typeBToggle);
-	addAndMakeVisible(typeCToggle);
+	//addAndMakeVisible(typeCToggle);
 
 	// Gain Slider Adjustement
 
@@ -68,7 +69,17 @@ JuceNrProjectAudioProcessorEditor::JuceNrProjectAudioProcessorEditor (JuceNrProj
 	gainSlider.setTextBoxStyle(Slider::TextBoxBelow, true, 100, 25);
 	addAndMakeVisible(&gainSlider);
 
-	// Gain Slider Adjustement
+	// Decibel Limit Slider Adjustement
+
+	addAndMakeVisible(decibelLimitLabel);
+	decibelLimitLabel.setText("Decibel Limit", dontSendNotification);
+	decibelLimitLabel.attachToComponent(&decibelLimitSlider, false);
+
+	decibelLimitSlider.setSliderStyle(Slider::SliderStyle::LinearHorizontal);
+	decibelLimitSlider.setTextBoxStyle(Slider::TextBoxBelow, true, 100, 25);
+	addAndMakeVisible(&decibelLimitSlider);
+
+	// Filter Cutoff Slider Adjustement
 
 	addAndMakeVisible(filterLabel);
 	filterLabel.setText("Filter Cutoff", dontSendNotification);
@@ -109,6 +120,7 @@ void JuceNrProjectAudioProcessorEditor::resized()
 	auto areaItemHeight = area.getHeight() / 10;
 
 	gainSlider.setBounds(area.removeFromTop(areaItemHeight));
+	decibelLimitSlider.setBounds(area.removeFromTop(areaItemHeight));
 	filterSlider.setBounds(area.removeFromTop(areaItemHeight));
 
 	auto sidebarItemHeight = sidebar.getHeight() / 10;
