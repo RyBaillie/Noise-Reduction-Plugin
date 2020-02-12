@@ -23,7 +23,7 @@ JuceNrProjectAudioProcessorEditor::JuceNrProjectAudioProcessorEditor (JuceNrProj
 	};
 
     gainSliderValue = std::make_unique<AudioProcessorValueTreeState::SliderAttachment>(processor.treeState, "gain", gainSlider);
-	gainSliderValue = std::make_unique<AudioProcessorValueTreeState::SliderAttachment>(processor.treeState, "dbLimit", decibelLimitSlider);
+	decibelLimitSliderValue = std::make_unique<AudioProcessorValueTreeState::SliderAttachment>(processor.treeState, "dbLimit", decibelLimitSlider);
 	filterSliderValue = std::make_unique<AudioProcessorValueTreeState::SliderAttachment>(processor.treeState, "filter", filterSlider);
 	encodeSelection = std::make_unique<AudioProcessorValueTreeState::ButtonAttachment>(processor.treeState, "encode", encodeToggle);
 	decodeSelection = std::make_unique<AudioProcessorValueTreeState::ButtonAttachment>(processor.treeState, "decode", decodeToggle);
