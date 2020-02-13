@@ -67,11 +67,25 @@ AudioProcessorValueTreeState::ParameterLayout JuceNrProjectAudioProcessor::creat
 																		100.0f,				//Max
 																		10.0f				//Default
 		);
+	auto attackMsParam = std::make_unique<AudioParameterFloat>(	"attackMs",	//ID
+																"AttackMs",	//Name
+																0.0f,			//Min
+																1000.0f,		//Max
+																100.0f			//Default
+		);
+	auto releaseMsParam = std::make_unique<AudioParameterFloat>(	"releaseMs",	//ID
+																	"ReleaseMs",	//Name
+																	0.0f,			//Min
+																	1000.0f,		//Max
+																	100.0f			//Default
+		);
 	params.push_back(std::move(filterParam));
     params.push_back(std::move(gainParam));
 	params.push_back(std::move(decibelLimitParam));
 	params.push_back(std::move(compressorThresholdParam));
 	params.push_back(std::move(compressorRatioParam));
+	params.push_back(std::move(attackMsParam));
+	params.push_back(std::move(releaseMsParam));
     return { params.begin(), params.end() };
 }
 
@@ -193,6 +207,17 @@ void JuceNrProjectAudioProcessor::processBlock (AudioBuffer<float>& buffer, Midi
     auto totalNumInputChannels  = getTotalNumInputChannels();
     auto totalNumOutputChannels = getTotalNumOutputChannels();
 
+	auto sliderGainValue = treeState.getRawParameterValue("gain");
+	auto filterValue = treeState.getRawParameterValue("cutoff");
+	auto sliderDecibelValue = treeState.getRawParameterValue("dbLimit");
+	auto sliderCompressorThresholdValue = treeState.getRawParameterValue("compressorThreshold");
+	auto sliderCompressorRatioValue = treeState.getRawParameterValue("compressorRatio");
+	auto sliderAttackMsValue = treeState.getRawParameterValue("attackMs");
+	auto sliderReleaseMsValue = treeState.getRawParameterValue("releaseMs");
+
+	setAttack(*sliderAttackMsValue);
+	setRelease(*sliderReleaseMsValue);
+
     // In case we have more outputs than inputs, this code clears any output
     // channels that didn't contain input data, (because these aren't
     // guaranteed to be empty - they may contain garbage).
@@ -219,12 +244,6 @@ void JuceNrProjectAudioProcessor::processBlock (AudioBuffer<float>& buffer, Midi
         auto* channelData = buffer.getWritePointer (channel);
 
         // ..do something to the data...
-        
-        auto sliderGainValue = treeState.getRawParameterValue("gain");
-		auto filterValue = treeState.getRawParameterValue("cutoff");
-		auto sliderDecibelValue = treeState.getRawParameterValue("dbLimit");
-		auto sliderCompressorThresholdValue = treeState.getRawParameterValue("compressorThreshold");
-		auto sliderCompressorRatioValue = treeState.getRawParameterValue("compressorRatio");
 
         for (int sampleCount = 0; sampleCount < buffer.getNumSamples(); ++sampleCount)
         {

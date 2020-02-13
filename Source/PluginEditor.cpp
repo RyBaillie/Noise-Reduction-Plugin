@@ -27,6 +27,9 @@ JuceNrProjectAudioProcessorEditor::JuceNrProjectAudioProcessorEditor (JuceNrProj
 	filterSliderValue = std::make_unique<AudioProcessorValueTreeState::SliderAttachment>(processor.treeState, "filter", filterSlider);
 	compressorThresholdSliderValue = std::make_unique<AudioProcessorValueTreeState::SliderAttachment>(processor.treeState, "compressorThreshold", compressorThresholdSlider);
 	compressorRatioSliderValue = std::make_unique<AudioProcessorValueTreeState::SliderAttachment>(processor.treeState, "compressorRatio", compressorRatioSlider);
+	attackMsSliderValue = std::make_unique<AudioProcessorValueTreeState::SliderAttachment>(processor.treeState, "attackMs", attackMsSlider);
+	releaseMsSliderValue = std::make_unique<AudioProcessorValueTreeState::SliderAttachment>(processor.treeState, "releaseMs", releaseMsSlider);
+
 	encodeSelection = std::make_unique<AudioProcessorValueTreeState::ButtonAttachment>(processor.treeState, "encode", encodeToggle);
 	decodeSelection = std::make_unique<AudioProcessorValueTreeState::ButtonAttachment>(processor.treeState, "decode", decodeToggle);
 
@@ -81,10 +84,42 @@ JuceNrProjectAudioProcessorEditor::JuceNrProjectAudioProcessorEditor (JuceNrProj
 	decibelLimitSlider.setTextBoxStyle(Slider::TextBoxBelow, true, 100, 25);
 	addAndMakeVisible(&decibelLimitSlider);
 
+	// Attack (ms) Slider Adjustement
+
+	addAndMakeVisible(attackMsSliderLabel);
+	attackMsSliderLabel.setText("Attack (ms)", dontSendNotification);
+	attackMsSliderLabel.attachToComponent(&attackMsSlider, false);
+
+	attackMsSlider.setSliderStyle(Slider::SliderStyle::LinearHorizontal);
+	attackMsSlider.setTextBoxStyle(Slider::TextBoxBelow, true, 100, 25);
+	addAndMakeVisible(&attackMsSlider);
+
+	// Envelope
+
+	addAndMakeVisible(envelopeLabel);
+	envelopeLabel.setText("Envelope", dontSendNotification);
+	envelopeLabel.setJustificationType(Justification::centred);
+
+	// Release (ms) Slider Adjustement
+
+	addAndMakeVisible(releaseMsSliderLabel);
+	releaseMsSliderLabel.setText("Release (ms)", dontSendNotification);
+	releaseMsSliderLabel.attachToComponent(&releaseMsSlider, false);
+
+	releaseMsSlider.setSliderStyle(Slider::SliderStyle::LinearHorizontal);
+	releaseMsSlider.setTextBoxStyle(Slider::TextBoxBelow, true, 100, 25);
+	addAndMakeVisible(&releaseMsSlider);
+
+	// Filter
+
+	addAndMakeVisible(filterCategoryLabel);
+	filterCategoryLabel.setText("Filter", dontSendNotification);
+	filterCategoryLabel.setJustificationType(Justification::centred);
+
 	// Filter Cutoff Slider Adjustement
 
 	addAndMakeVisible(filterLabel);
-	filterLabel.setText("Filter Cutoff", dontSendNotification);
+	filterLabel.setText("Cutoff", dontSendNotification);
 	filterLabel.attachToComponent(&filterSlider, false);
 
 	filterSlider.setSliderStyle(Slider::SliderStyle::LinearHorizontal);
@@ -94,10 +129,16 @@ JuceNrProjectAudioProcessorEditor::JuceNrProjectAudioProcessorEditor (JuceNrProj
 	filterSlider.setValue(1000.0f);
 	addAndMakeVisible(&filterSlider);
 
+	// Compressor
+
+	addAndMakeVisible(compressorLabel);
+	compressorLabel.setText("Compressor", dontSendNotification);
+	compressorLabel.setJustificationType(Justification::centred);
+
 	// Compressor Threshold Slider Adjustement
 
 	addAndMakeVisible(compressorThresholdLabel);
-	compressorThresholdLabel.setText("Compressor Threshold", dontSendNotification);
+	compressorThresholdLabel.setText("Threshold", dontSendNotification);
 	compressorThresholdLabel.attachToComponent(&compressorThresholdSlider, false);
 
 	compressorThresholdSlider.setSliderStyle(Slider::SliderStyle::LinearHorizontal);
@@ -107,12 +148,13 @@ JuceNrProjectAudioProcessorEditor::JuceNrProjectAudioProcessorEditor (JuceNrProj
 	// Compressor Ratio Slider Adjustement
 
 	addAndMakeVisible(compressorRatioLabel);
-	compressorRatioLabel.setText("Compressor Ratio", dontSendNotification);
+	compressorRatioLabel.setText("Ratio", dontSendNotification);
 	compressorRatioLabel.attachToComponent(&compressorRatioSlider, false);
 
 	compressorRatioSlider.setSliderStyle(Slider::SliderStyle::LinearHorizontal);
 	compressorRatioSlider.setTextBoxStyle(Slider::TextBoxBelow, true, 100, 25);
 	addAndMakeVisible(&compressorRatioSlider);
+
 }
 
 JuceNrProjectAudioProcessorEditor::~JuceNrProjectAudioProcessorEditor()
@@ -142,9 +184,18 @@ void JuceNrProjectAudioProcessorEditor::resized()
 
 	gainSlider.setBounds(area.removeFromTop(areaItemHeight));
 	decibelLimitSlider.setBounds(area.removeFromTop(areaItemHeight));
+
+	envelopeLabel.setBounds(area.removeFromTop(areaItemHeight));
+	attackMsSlider.setBounds(area.removeFromTop(areaItemHeight));
+	releaseMsSlider.setBounds(area.removeFromTop(areaItemHeight));
+
+	filterCategoryLabel.setBounds(area.removeFromTop(areaItemHeight));
+	filterSlider.setBounds(area.removeFromTop(areaItemHeight));
+
+	compressorLabel.setBounds(area.removeFromTop(areaItemHeight));
 	compressorThresholdSlider.setBounds(area.removeFromTop(areaItemHeight));
 	compressorRatioSlider.setBounds(area.removeFromTop(areaItemHeight));
-	filterSlider.setBounds(area.removeFromTop(areaItemHeight));
+	
 
 	auto sidebarItemHeight = sidebar.getHeight() / 10;
 	auto sidebarItemMargin = sidebar.getWidth() * 0.02;

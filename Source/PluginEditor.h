@@ -36,6 +36,8 @@ private:
 	Slider filterSlider;
 	Slider compressorThresholdSlider;
 	Slider compressorRatioSlider;
+	Slider attackMsSlider;
+	Slider releaseMsSlider;
 
 	GroupComponent modes;
 	TextButton encodeToggle {"Encode"};
@@ -50,6 +52,12 @@ private:
 	Label compressorRatioLabel;
 	Label conversionModeLabel;
 	Label algorithmModeLabel;
+	Label attackMsSliderLabel;
+	Label releaseMsSliderLabel;
+
+	Label envelopeLabel;
+	Label compressorLabel;
+	Label filterCategoryLabel;
 
     
 public:
@@ -59,6 +67,8 @@ public:
 	std::unique_ptr <AudioProcessorValueTreeState::SliderAttachment> compressorThresholdSliderValue;
 	std::unique_ptr <AudioProcessorValueTreeState::SliderAttachment> compressorRatioSliderValue;
 	std::unique_ptr <AudioProcessorValueTreeState::SliderAttachment> filterSliderValue;
+	std::unique_ptr <AudioProcessorValueTreeState::SliderAttachment> attackMsSliderValue;
+	std::unique_ptr <AudioProcessorValueTreeState::SliderAttachment> releaseMsSliderValue;
 	std::unique_ptr <AudioProcessorValueTreeState::ButtonAttachment> encodeSelection;
 	std::unique_ptr <AudioProcessorValueTreeState::ButtonAttachment> decodeSelection;
 	std::unique_ptr <AudioProcessorValueTreeState::ButtonAttachment> algorithmSelection;
