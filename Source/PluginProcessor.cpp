@@ -248,6 +248,10 @@ void JuceNrProjectAudioProcessor::processBlock (AudioBuffer<float>& buffer, Midi
         for (int sampleCount = 0; sampleCount < buffer.getNumSamples(); ++sampleCount)
         {
 
+			float detectionSignal = fabs(buffer.getSample(channel, sampleCount));
+			detectionSignal = amplitudeToDecibel(detectionSignal);
+			float workingSample = buffer.getSample(channel, sampleCount);
+
 			if (buffer.getSample(channel, sampleCount) > m_Envelope) {
 				m_Envelope = m_Envelope + m_Attack * (buffer.getSample(channel, sampleCount) - m_Envelope);
 			}
@@ -259,19 +263,16 @@ void JuceNrProjectAudioProcessor::processBlock (AudioBuffer<float>& buffer, Midi
 			setDecibelLimit(*sliderDecibelValue);
 
 			if(db <= dbLimit) {
-				channelData[sampleCount] = buffer.getSample(channel, sampleCount) * Decibels::decibelsToGain(*sliderGainValue);
+				workingSample = workingSample * Decibels::decibelsToGain(*sliderGainValue);
 			}
-			else {
-				channelData[sampleCount] = buffer.getSample(channel, sampleCount);
-			}
+			
+			channelData[sampleCount] = workingSample;
         }
     }
 
 	/* Compressor Code for use later ===============================
 
-	float detectionSignal = fabs(buffer.getSample(channel, sampleCount));
-
-	detectionSignal = amplitudeToDecibel(detectionSignal);
+	
 
 	if (detectionSignal > m_Threshold) {
 		float scale = 1.0f - (1.0f / m_Ratio);
