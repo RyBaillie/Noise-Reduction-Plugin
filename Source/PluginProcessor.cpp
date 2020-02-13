@@ -41,7 +41,7 @@ AudioProcessorValueTreeState::ParameterLayout JuceNrProjectAudioProcessor::creat
 															"Gain", //Name
 															-48.0f, //Min
 															0.0f,	//Max
-															-48.0f	//Default -15.0f
+															0.0f	//Default -15.0f
 		); 
 	auto filterParam = std::make_unique<AudioParameterFloat>(	"cutoff",	//ID
 																"Cutoff",	//Name
