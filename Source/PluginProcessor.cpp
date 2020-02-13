@@ -217,6 +217,8 @@ void JuceNrProjectAudioProcessor::processBlock (AudioBuffer<float>& buffer, Midi
 
 	setAttack(*sliderAttackMsValue);
 	setRelease(*sliderReleaseMsValue);
+	setRatio(*sliderCompressorRatioValue);
+	setThreshold(*sliderCompressorThresholdValue);
 
     // In case we have more outputs than inputs, this code clears any output
     // channels that didn't contain input data, (because these aren't
@@ -264,24 +266,20 @@ void JuceNrProjectAudioProcessor::processBlock (AudioBuffer<float>& buffer, Midi
 
 			if(db <= dbLimit) {
 				workingSample = workingSample * Decibels::decibelsToGain(*sliderGainValue);
+
+				if (detectionSignal > m_Threshold) {
+					float scale = 1.0f - (1.0f / m_Ratio);
+					float gain = scale * (m_Threshold - detectionSignal);
+					gain = decibelToAmplitude(gain);
+
+					workingSample = workingSample * gain;
+				}
+
 			}
 			
 			channelData[sampleCount] = workingSample;
         }
     }
-
-	/* Compressor Code for use later ===============================
-
-	
-
-	if (detectionSignal > m_Threshold) {
-		float scale = 1.0f - (1.0f / m_Ratio);
-		float gain = scale * (m_Threshold - detectionSignal);
-		gain = decibelToAmplitude(gain);
-
-		channelData[sampleCount] = buffer.getSample(channel, sampleCount) * gain;
-	}
-	===============================================================*/
 
 }
 
