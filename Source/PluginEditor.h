@@ -33,7 +33,8 @@ private:
 
     Slider gainSlider;
 	Slider decibelLimitSlider;
-	Slider filterSlider;
+	Slider filterCutoffSlider;
+	Slider filterResonanceSlider;
 	Slider compressorThresholdSlider;
 	Slider compressorRatioSlider;
 	Slider attackMsSlider;
@@ -47,7 +48,8 @@ private:
 
 	Label gainLabel;
 	Label decibelLimitLabel;
-	Label filterLabel;
+	Label filterCutoffLabel;
+	Label filterResonanceLabel;
 	Label compressorThresholdLabel;
 	Label compressorRatioLabel;
 	Label conversionModeLabel;
@@ -66,7 +68,8 @@ public:
 	std::unique_ptr <AudioProcessorValueTreeState::SliderAttachment> decibelLimitSliderValue;
 	std::unique_ptr <AudioProcessorValueTreeState::SliderAttachment> compressorThresholdSliderValue;
 	std::unique_ptr <AudioProcessorValueTreeState::SliderAttachment> compressorRatioSliderValue;
-	std::unique_ptr <AudioProcessorValueTreeState::SliderAttachment> filterSliderValue;
+	std::unique_ptr <AudioProcessorValueTreeState::SliderAttachment> filterCutoffSliderValue;
+	std::unique_ptr <AudioProcessorValueTreeState::SliderAttachment> filterResonanceSliderValue;
 	std::unique_ptr <AudioProcessorValueTreeState::SliderAttachment> attackMsSliderValue;
 	std::unique_ptr <AudioProcessorValueTreeState::SliderAttachment> releaseMsSliderValue;
 	std::unique_ptr <AudioProcessorValueTreeState::ButtonAttachment> encodeSelection;

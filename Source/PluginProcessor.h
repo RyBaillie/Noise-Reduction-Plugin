@@ -82,6 +82,7 @@ private:
 	dsp::ProcessorDuplicator<dsp::StateVariableFilter::Filter<float>, dsp::StateVariableFilter::Parameters<float>> stateVariableFilter;
 
 	float dbLimit = 1;
+	float lastSampleRate;
 
 	void setDecibelLimit(float db);
 

@@ -15,7 +15,7 @@
 JuceNrProjectAudioProcessorEditor::JuceNrProjectAudioProcessorEditor (JuceNrProjectAudioProcessor& p)
     : AudioProcessorEditor (&p), processor (p)
 {
-	setSize(800, 600);
+	setSize(800, 1000);
 
 	enum RadioButtonIds {
 		EncodingButtons = 1001,
@@ -24,7 +24,8 @@ JuceNrProjectAudioProcessorEditor::JuceNrProjectAudioProcessorEditor (JuceNrProj
 
     gainSliderValue = std::make_unique<AudioProcessorValueTreeState::SliderAttachment>(processor.treeState, "gain", gainSlider);
 	decibelLimitSliderValue = std::make_unique<AudioProcessorValueTreeState::SliderAttachment>(processor.treeState, "dbLimit", decibelLimitSlider);
-	filterSliderValue = std::make_unique<AudioProcessorValueTreeState::SliderAttachment>(processor.treeState, "filter", filterSlider);
+	filterCutoffSliderValue = std::make_unique<AudioProcessorValueTreeState::SliderAttachment>(processor.treeState, "cutoff", filterCutoffSlider);
+	filterResonanceSliderValue = std::make_unique<AudioProcessorValueTreeState::SliderAttachment>(processor.treeState, "resonance", filterResonanceSlider);
 	compressorThresholdSliderValue = std::make_unique<AudioProcessorValueTreeState::SliderAttachment>(processor.treeState, "compressorThreshold", compressorThresholdSlider);
 	compressorRatioSliderValue = std::make_unique<AudioProcessorValueTreeState::SliderAttachment>(processor.treeState, "compressorRatio", compressorRatioSlider);
 	attackMsSliderValue = std::make_unique<AudioProcessorValueTreeState::SliderAttachment>(processor.treeState, "attackMs", attackMsSlider);
@@ -118,16 +119,24 @@ JuceNrProjectAudioProcessorEditor::JuceNrProjectAudioProcessorEditor (JuceNrProj
 
 	// Filter Cutoff Slider Adjustement
 
-	addAndMakeVisible(filterLabel);
-	filterLabel.setText("Cutoff", dontSendNotification);
-	filterLabel.attachToComponent(&filterSlider, false);
+	addAndMakeVisible(filterCutoffLabel);
+	filterCutoffLabel.setText("Cutoff (f)", dontSendNotification);
+	filterCutoffLabel.attachToComponent(&filterCutoffSlider, false);
 
-	filterSlider.setSliderStyle(Slider::SliderStyle::LinearHorizontal);
-	filterSlider.setTextBoxStyle(Slider::TextBoxBelow, true, 100, 25);
-	filterSlider.setRange(20.0f, 20000.0f);
-	filterSlider.setSkewFactorFromMidPoint(500.);
-	filterSlider.setValue(1000.0f);
-	addAndMakeVisible(&filterSlider);
+	filterCutoffSlider.setSliderStyle(Slider::SliderStyle::LinearHorizontal);
+	filterCutoffSlider.setTextBoxStyle(Slider::TextBoxBelow, true, 100, 25);
+	filterCutoffSlider.setSkewFactorFromMidPoint(500.);
+	addAndMakeVisible(&filterCutoffSlider);
+
+	// Filter Resonance Slider Adjustement
+
+	addAndMakeVisible(filterResonanceLabel);
+	filterResonanceLabel.setText("Resonance", dontSendNotification);
+	filterResonanceLabel.attachToComponent(&filterResonanceSlider, false);
+
+	filterResonanceSlider.setSliderStyle(Slider::SliderStyle::LinearHorizontal);
+	filterResonanceSlider.setTextBoxStyle(Slider::TextBoxBelow, true, 100, 25);
+	addAndMakeVisible(&filterResonanceSlider);
 
 	// Compressor
 
@@ -180,7 +189,7 @@ void JuceNrProjectAudioProcessorEditor::resized()
 	auto footer = area.removeFromBottom(headFootHeight);
 	auto sidebar = area.removeFromLeft(sidebarWidth);
 
-	auto areaItemHeight = area.getHeight() / 10;
+	auto areaItemHeight = area.getHeight() / 12;
 
 	gainSlider.setBounds(area.removeFromTop(areaItemHeight));
 	decibelLimitSlider.setBounds(area.removeFromTop(areaItemHeight));
@@ -190,7 +199,8 @@ void JuceNrProjectAudioProcessorEditor::resized()
 	releaseMsSlider.setBounds(area.removeFromTop(areaItemHeight));
 
 	filterCategoryLabel.setBounds(area.removeFromTop(areaItemHeight));
-	filterSlider.setBounds(area.removeFromTop(areaItemHeight));
+	filterCutoffSlider.setBounds(area.removeFromTop(areaItemHeight));
+	filterResonanceSlider.setBounds(area.removeFromTop(areaItemHeight));
 
 	compressorLabel.setBounds(area.removeFromTop(areaItemHeight));
 	compressorThresholdSlider.setBounds(area.removeFromTop(areaItemHeight));

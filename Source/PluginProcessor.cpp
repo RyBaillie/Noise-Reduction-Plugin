@@ -25,7 +25,7 @@ JuceNrProjectAudioProcessor::JuceNrProjectAudioProcessor()
                        ), treeState (*this, nullptr, "PARAMETER", createParameterLayout())
 #endif
 {
-
+	
 }
 
 JuceNrProjectAudioProcessor::~JuceNrProjectAudioProcessor()
@@ -43,11 +43,17 @@ AudioProcessorValueTreeState::ParameterLayout JuceNrProjectAudioProcessor::creat
 															0.0f,	//Max
 															0.0f	//Default -15.0f
 		); 
-	auto filterParam = std::make_unique<AudioParameterFloat>(	"cutoff",	//ID
-																"Cutoff",	//Name
-																20.0f,		//Min
-																20000.0f,	//Max
-																5000.0f		//Default
+	auto filterCutoffParam = std::make_unique<AudioParameterFloat>(	"cutoff",	//ID
+																"Cutoff",		//Name
+																20.0f,			//Min
+																20000.0f,		//Max
+																5000.0f			//Default
+		);
+	auto filterResonanceParam = std::make_unique<AudioParameterFloat>(	"resonance",	//ID
+																		"Resonance",	//Name
+																		1.0f,			//Min
+																		5.0f,			//Max
+																		1.0f			//Default
 		);
 	auto decibelLimitParam = std::make_unique<AudioParameterFloat>(	"dbLimit",	//ID
 																"DbLimit",		//Name
@@ -67,8 +73,8 @@ AudioProcessorValueTreeState::ParameterLayout JuceNrProjectAudioProcessor::creat
 																		100.0f,				//Max
 																		10.0f				//Default
 		);
-	auto attackMsParam = std::make_unique<AudioParameterFloat>(	"attackMs",	//ID
-																"AttackMs",	//Name
+	auto attackMsParam = std::make_unique<AudioParameterFloat>(	"attackMs",		//ID
+																"AttackMs",		//Name
 																0.0f,			//Min
 																1000.0f,		//Max
 																100.0f			//Default
@@ -79,7 +85,8 @@ AudioProcessorValueTreeState::ParameterLayout JuceNrProjectAudioProcessor::creat
 																	1000.0f,		//Max
 																	100.0f			//Default
 		);
-	params.push_back(std::move(filterParam));
+	params.push_back(std::move(filterCutoffParam));
+	params.push_back(std::move(filterResonanceParam));
     params.push_back(std::move(gainParam));
 	params.push_back(std::move(decibelLimitParam));
 	params.push_back(std::move(compressorThresholdParam));
@@ -153,22 +160,16 @@ void JuceNrProjectAudioProcessor::changeProgramName (int index, const String& ne
 //==============================================================================
 void JuceNrProjectAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
 {
+	lastSampleRate = sampleRate;
+	dsp::ProcessSpec spec;
 	spec.maximumBlockSize = samplesPerBlock;
 	spec.sampleRate = sampleRate;
 	spec.numChannels = getMainBusNumOutputChannels();
-
-	updateFilter();
-	updateAttackRelease();
-}
-
-void JuceNrProjectAudioProcessor::updateFilter() {
-
-	//make filter High Pass
 	stateVariableFilter.reset();
-	stateVariableFilter.state->type = dsp::StateVariableFilter::Parameters<float>::Type::highPass;
-	stateVariableFilter.state->setCutOffFrequency(currentSampleRate, 500);
-	stateVariableFilter.prepare(spec);
+	updateFilter();
 
+	stateVariableFilter.prepare(spec);
+	//updateAttackRelease();
 }
 
 void JuceNrProjectAudioProcessor::releaseResources()
@@ -207,8 +208,9 @@ void JuceNrProjectAudioProcessor::processBlock (AudioBuffer<float>& buffer, Midi
     auto totalNumInputChannels  = getTotalNumInputChannels();
     auto totalNumOutputChannels = getTotalNumOutputChannels();
 
+	
 	auto sliderGainValue = treeState.getRawParameterValue("gain");
-	auto filterValue = treeState.getRawParameterValue("cutoff");
+	
 	auto sliderDecibelValue = treeState.getRawParameterValue("dbLimit");
 	auto sliderCompressorThresholdValue = treeState.getRawParameterValue("compressorThreshold");
 	auto sliderCompressorRatioValue = treeState.getRawParameterValue("compressorRatio");
@@ -220,21 +222,8 @@ void JuceNrProjectAudioProcessor::processBlock (AudioBuffer<float>& buffer, Midi
 	setRatio(*sliderCompressorRatioValue);
 	setThreshold(*sliderCompressorThresholdValue);
 
-    // In case we have more outputs than inputs, this code clears any output
-    // channels that didn't contain input data, (because these aren't
-    // guaranteed to be empty - they may contain garbage).
-    // This is here to avoid people getting screaming feedback
-    // when they first compile a plugin, but obviously you don't need to keep
-    // this code if your algorithm always overwrites all the output channels.
     for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
         buffer.clear (i, 0, buffer.getNumSamples());
-
-    // This is the place where you'd normally do the guts of your plugin's
-    // audio processing...
-    // Make sure to reset the state if your inner loop is processing
-    // the samples and the outer loop is handling the channels.
-    // Alternatively, you can process the samples with the channels
-    // interleaved by keeping the same state.
 
 	dsp::AudioBlock<float> block(buffer);
 
@@ -264,17 +253,19 @@ void JuceNrProjectAudioProcessor::processBlock (AudioBuffer<float>& buffer, Midi
 			float db = Decibels::gainToDecibels(fabs(m_Envelope));
 			setDecibelLimit(*sliderDecibelValue);
 
+			//Check signal is quiet enough
 			if(db <= dbLimit) {
 				workingSample = workingSample * Decibels::decibelsToGain(*sliderGainValue);
 
+				//If above the threshold, do compressor actions
 				if (detectionSignal > m_Threshold) {
+
 					float scale = 1.0f - (1.0f / m_Ratio);
-					float gain = scale * (m_Threshold - detectionSignal);
-					gain = decibelToAmplitude(gain);
+					float compressionGain = scale * (m_Threshold - detectionSignal);
+					compressionGain = decibelToAmplitude(compressionGain);
+					workingSample = workingSample * compressionGain;
 
-					workingSample = workingSample * gain;
 				}
-
 			}
 			
 			channelData[sampleCount] = workingSample;
@@ -336,6 +327,19 @@ float JuceNrProjectAudioProcessor::envelopeCalculate(float time) {
 void JuceNrProjectAudioProcessor::updateAttackRelease() {
 	m_Attack = envelopeCalculate(m_AttackInMilliseconds);
 	m_Release = envelopeCalculate(m_ReleaseInMilliseconds);
+}
+//==============================================================================
+
+// Filter ======================================================================
+void JuceNrProjectAudioProcessor::updateFilter() {
+
+	auto filterSliderValue = *treeState.getRawParameterValue("cutoff");
+	auto filterResonanceValue = *treeState.getRawParameterValue("resonance");
+
+	//make filter High Pass
+	stateVariableFilter.state->type = dsp::StateVariableFilter::Parameters<float>::Type::highPass;
+	stateVariableFilter.state->setCutOffFrequency(lastSampleRate, filterSliderValue, filterResonanceValue);
+
 }
 //==============================================================================
 
