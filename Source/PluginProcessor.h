@@ -80,6 +80,7 @@ public:
 private:
 
 	dsp::ProcessorDuplicator<dsp::StateVariableFilter::Filter<float>, dsp::StateVariableFilter::Parameters<float>> stateVariableFilter;
+	AudioBuffer<float> sideChannel;
 
 	float dbLimit = 1;
 	float lastSampleRate;

@@ -25,7 +25,6 @@ JuceNrProjectAudioProcessor::JuceNrProjectAudioProcessor()
                        ), treeState (*this, nullptr, "PARAMETER", createParameterLayout())
 #endif
 {
-	
 }
 
 JuceNrProjectAudioProcessor::~JuceNrProjectAudioProcessor()
@@ -85,6 +84,13 @@ AudioProcessorValueTreeState::ParameterLayout JuceNrProjectAudioProcessor::creat
 																	1000.0f,		//Max
 																	100.0f			//Default
 		);
+	/*auto encodeBtnParam = std::make_unique<AudioParameterFloat>(	"encodeBtn",	//ID
+																	"encodeBtn",	//Name
+																	true,			//Min
+																	false,		//Max
+																	true			//Default
+		);
+	params.push_back(std::move(encodeBtnParam));*/
 	params.push_back(std::move(filterCutoffParam));
 	params.push_back(std::move(filterResonanceParam));
     params.push_back(std::move(gainParam));
@@ -160,6 +166,9 @@ void JuceNrProjectAudioProcessor::changeProgramName (int index, const String& ne
 //==============================================================================
 void JuceNrProjectAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
 {
+
+	sideChannel.setSize(4, samplesPerBlock);
+
 	lastSampleRate = sampleRate;
 	dsp::ProcessSpec spec;
 	spec.maximumBlockSize = samplesPerBlock;
@@ -208,7 +217,6 @@ void JuceNrProjectAudioProcessor::processBlock (AudioBuffer<float>& buffer, Midi
     auto totalNumInputChannels  = getTotalNumInputChannels();
     auto totalNumOutputChannels = getTotalNumOutputChannels();
 
-	
 	auto sliderGainValue = treeState.getRawParameterValue("gain");
 	
 	auto sliderDecibelValue = treeState.getRawParameterValue("dbLimit");
@@ -217,13 +225,19 @@ void JuceNrProjectAudioProcessor::processBlock (AudioBuffer<float>& buffer, Midi
 	auto sliderAttackMsValue = treeState.getRawParameterValue("attackMs");
 	auto sliderReleaseMsValue = treeState.getRawParameterValue("releaseMs");
 
+	auto btnEncodeMode = treeState.getRawParameterValue("encodeBtn");
+
 	setAttack(*sliderAttackMsValue);
 	setRelease(*sliderReleaseMsValue);
 	setRatio(*sliderCompressorRatioValue);
 	setThreshold(*sliderCompressorThresholdValue);
 
-    for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
-        buffer.clear (i, 0, buffer.getNumSamples());
+	//In this implementation, the unnaltered path is considered the side channel.
+    for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i){
+		buffer.clear(i, 0, buffer.getNumSamples());
+		//sideChannel.copyFrom(i, 0, buffer.getReadPointer(i), buffer.getNumSamples());
+	}
+	sideChannel.makeCopyOf(buffer, true);
 
 	dsp::AudioBlock<float> block(buffer);
 
@@ -249,14 +263,14 @@ void JuceNrProjectAudioProcessor::processBlock (AudioBuffer<float>& buffer, Midi
 			else if (buffer.getSample(channel, sampleCount) < m_Envelope) {
 				m_Envelope = m_Envelope + m_Release * (buffer.getSample(channel, sampleCount) - m_Envelope);
 			}
-			//printf("Envelope: %f", m_Envelope);
 
 			float db = Decibels::gainToDecibels(fabs(m_Envelope));
 			setDecibelLimit(*sliderDecibelValue);
 
+			workingSample = workingSample * Decibels::decibelsToGain(*sliderGainValue);
+
 			//Check signal is quiet enough
 			if(db <= dbLimit) {
-				workingSample = workingSample * Decibels::decibelsToGain(*sliderGainValue);
 
 				//If above the threshold, do compressor actions
 				if (detectionSignal > m_Threshold) {
@@ -268,8 +282,15 @@ void JuceNrProjectAudioProcessor::processBlock (AudioBuffer<float>& buffer, Midi
 
 				}
 			}
+
+			//if(btnEncodeMode){
+			workingSample + (workingSample + sideChannel.getSample(channel, sampleCount))/2;
+			/*} else{
+				workingSample + (workingSample - sideChannel.getSample(channel, sampleCount))/2;
+			}*/
 			
 			channelData[sampleCount] = workingSample;
+
         }
     }
 
