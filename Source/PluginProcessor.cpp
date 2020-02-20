@@ -47,7 +47,7 @@ AudioProcessorValueTreeState::ParameterLayout JuceNrProjectAudioProcessor::creat
 																"Cutoff",		//Name
 																20.0f,			//Min
 																20000.0f,		//Max
-																5000.0f			//Default
+																500.0f			//Default
 		);
 	auto filterResonanceParam = std::make_unique<AudioParameterFloat>(	"resonance",	//ID
 																		"Resonance",	//Name
@@ -169,7 +169,7 @@ void JuceNrProjectAudioProcessor::prepareToPlay (double sampleRate, int samplesP
 	updateFilter();
 
 	stateVariableFilter.prepare(spec);
-	//updateAttackRelease();
+	updateAttackRelease();
 }
 
 void JuceNrProjectAudioProcessor::releaseResources()
@@ -249,6 +249,7 @@ void JuceNrProjectAudioProcessor::processBlock (AudioBuffer<float>& buffer, Midi
 			else if (buffer.getSample(channel, sampleCount) < m_Envelope) {
 				m_Envelope = m_Envelope + m_Release * (buffer.getSample(channel, sampleCount) - m_Envelope);
 			}
+			//printf("Envelope: %f", m_Envelope);
 
 			float db = Decibels::gainToDecibels(fabs(m_Envelope));
 			setDecibelLimit(*sliderDecibelValue);
@@ -261,7 +262,7 @@ void JuceNrProjectAudioProcessor::processBlock (AudioBuffer<float>& buffer, Midi
 				if (detectionSignal > m_Threshold) {
 
 					float scale = 1.0f - (1.0f / m_Ratio);
-					float compressionGain = scale * (m_Threshold - detectionSignal);
+					float compressionGain = scale * (m_Threshold - m_Envelope);
 					compressionGain = decibelToAmplitude(compressionGain);
 					workingSample = workingSample * compressionGain;
 
