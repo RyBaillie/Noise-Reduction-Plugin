@@ -41,11 +41,13 @@ private:
 	Slider releaseMsSlider;
 
 	GroupComponent modes;
+	TextButton nrEnabledToggle{ "On" };
 	TextButton encodeToggle {"Encode"};
 	TextButton decodeToggle {"Decode"};
 	TextButton typeBToggle  {"Type B"};
 	TextButton typeCToggle  {"Type C"};
 
+	Label nrEnabledLabel;
 	Label gainLabel;
 	Label decibelLimitLabel;
 	Label filterCutoffLabel;
@@ -72,6 +74,7 @@ public:
 	std::unique_ptr <AudioProcessorValueTreeState::SliderAttachment> filterResonanceSliderValue;
 	std::unique_ptr <AudioProcessorValueTreeState::SliderAttachment> attackMsSliderValue;
 	std::unique_ptr <AudioProcessorValueTreeState::SliderAttachment> releaseMsSliderValue;
+	std::unique_ptr <AudioProcessorValueTreeState::ButtonAttachment> nrEnabledSelection;
 	std::unique_ptr <AudioProcessorValueTreeState::ButtonAttachment> encodeSelection;
 	std::unique_ptr <AudioProcessorValueTreeState::ButtonAttachment> decodeSelection;
 	std::unique_ptr <AudioProcessorValueTreeState::ButtonAttachment> algorithmSelection;

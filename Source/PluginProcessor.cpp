@@ -43,10 +43,10 @@ AudioProcessorValueTreeState::ParameterLayout JuceNrProjectAudioProcessor::creat
 															0.0f	//Default -15.0f
 		); 
 	auto filterCutoffParam = std::make_unique<AudioParameterFloat>(	"cutoff",	//ID
-																"Cutoff",		//Name
-																20.0f,			//Min
-																20000.0f,		//Max
-																500.0f			//Default
+																	"Cutoff",		//Name
+																	20.0f,			//Min
+																	20000.0f,		//Max
+																	500.0f			//Default
 		);
 	auto filterResonanceParam = std::make_unique<AudioParameterFloat>(	"resonance",	//ID
 																		"Resonance",	//Name
@@ -55,10 +55,10 @@ AudioProcessorValueTreeState::ParameterLayout JuceNrProjectAudioProcessor::creat
 																		1.0f			//Default
 		);
 	auto decibelLimitParam = std::make_unique<AudioParameterFloat>(	"dbLimit",	//ID
-																"DbLimit",		//Name
-																-200.0f,		//Min
-																200.0f,			//Max
-																1.0f			//Default
+																	"DbLimit",		//Name
+																	-200.0f,		//Min
+																	200.0f,			//Max
+																	1.0f			//Default
 		);
 	auto compressorThresholdParam = std::make_unique<AudioParameterFloat>(	"compressorThreshold",	//ID
 																			"CompressorThreshold",	//Name
@@ -84,13 +84,17 @@ AudioProcessorValueTreeState::ParameterLayout JuceNrProjectAudioProcessor::creat
 																	1000.0f,		//Max
 																	100.0f			//Default
 		);
-	/*auto encodeBtnParam = std::make_unique<AudioParameterFloat>(	"encodeBtn",	//ID
-																	"encodeBtn",	//Name
-																	true,			//Min
-																	false,		//Max
+	auto encodeBtnParam = std::make_unique<AudioParameterBool>(		"encodeBtn",	//ID
+																	"EncodeBtn",	//Name
 																	true			//Default
 		);
-	params.push_back(std::move(encodeBtnParam));*/
+	auto noiseReductionOnParam = std::make_unique<AudioParameterBool>(	"noiseReductionOnBtn",	//ID
+																		"NoiseReductionOnBtn",	//Name
+																		true			//Default
+		);
+
+	params.push_back(std::move(noiseReductionOnParam));
+	params.push_back(std::move(encodeBtnParam));
 	params.push_back(std::move(filterCutoffParam));
 	params.push_back(std::move(filterResonanceParam));
     params.push_back(std::move(gainParam));
@@ -225,8 +229,6 @@ void JuceNrProjectAudioProcessor::processBlock (AudioBuffer<float>& buffer, Midi
 	auto sliderAttackMsValue = treeState.getRawParameterValue("attackMs");
 	auto sliderReleaseMsValue = treeState.getRawParameterValue("releaseMs");
 
-	auto btnEncodeMode = treeState.getRawParameterValue("encodeBtn");
-
 	setAttack(*sliderAttackMsValue);
 	setRelease(*sliderReleaseMsValue);
 	setRatio(*sliderCompressorRatioValue);
@@ -244,53 +246,60 @@ void JuceNrProjectAudioProcessor::processBlock (AudioBuffer<float>& buffer, Midi
 	updateFilter();
 	stateVariableFilter.process(dsp::ProcessContextReplacing<float>(block));
 
-    for (int channel = 0; channel < totalNumInputChannels; ++channel)
-    {
+    for (int channel = 0; channel < totalNumInputChannels; ++channel){
         auto* channelData = buffer.getWritePointer (channel);
 
         // ..do something to the data...
 
-        for (int sampleCount = 0; sampleCount < buffer.getNumSamples(); ++sampleCount)
-        {
+        for (int sampleCount = 0; sampleCount < buffer.getNumSamples(); ++sampleCount) {
 
-			float detectionSignal = fabs(buffer.getSample(channel, sampleCount));
-			detectionSignal = amplitudeToDecibel(detectionSignal);
-			float workingSample = buffer.getSample(channel, sampleCount);
+			if (*treeState.getRawParameterValue("noiseReductionOnBtn")) {
 
-			if (buffer.getSample(channel, sampleCount) > m_Envelope) {
-				m_Envelope = m_Envelope + m_Attack * (buffer.getSample(channel, sampleCount) - m_Envelope);
-			}
-			else if (buffer.getSample(channel, sampleCount) < m_Envelope) {
-				m_Envelope = m_Envelope + m_Release * (buffer.getSample(channel, sampleCount) - m_Envelope);
-			}
+				float detectionSignal = fabs(buffer.getSample(channel, sampleCount));
+				detectionSignal = amplitudeToDecibel(detectionSignal);
+				float workingSample = buffer.getSample(channel, sampleCount);
 
-			float db = Decibels::gainToDecibels(fabs(m_Envelope));
-			setDecibelLimit(*sliderDecibelValue);
-
-			workingSample = workingSample * Decibels::decibelsToGain(*sliderGainValue);
-
-			//Check signal is quiet enough
-			if(db <= dbLimit) {
-
-				//If above the threshold, do compressor actions
-				if (detectionSignal > m_Threshold) {
-
-					float scale = 1.0f - (1.0f / m_Ratio);
-					float compressionGain = scale * (m_Threshold - m_Envelope);
-					compressionGain = decibelToAmplitude(compressionGain);
-					workingSample = workingSample * compressionGain;
-
+				if (buffer.getSample(channel, sampleCount) > m_Envelope) {
+					m_Envelope = m_Envelope + m_Attack * (buffer.getSample(channel, sampleCount) - m_Envelope);
 				}
+				else if (buffer.getSample(channel, sampleCount) < m_Envelope) {
+					m_Envelope = m_Envelope + m_Release * (buffer.getSample(channel, sampleCount) - m_Envelope);
+				}
+
+				float db = Decibels::gainToDecibels(fabs(m_Envelope));
+				setDecibelLimit(*sliderDecibelValue);
+
+				workingSample = workingSample * Decibels::decibelsToGain(*sliderGainValue);
+
+				//Check signal is quiet enough
+				if (db <= dbLimit) {
+
+					//If above the threshold, do compressor actions
+					if (detectionSignal > m_Threshold) {
+
+						float scale = 1.0f - (1.0f / m_Ratio);
+						float compressionGain = scale * (m_Threshold - m_Envelope);
+						compressionGain = decibelToAmplitude(compressionGain);
+						workingSample = workingSample * compressionGain;
+
+					}
+				}
+
+				bool btnEncodeMode = *treeState.getRawParameterValue("encodeBtn");
+
+				if (btnEncodeMode) {
+					workingSample = (workingSample + sideChannel.getSample(channel, sampleCount)) / 2;
+				}
+				else {
+					workingSample = (workingSample - sideChannel.getSample(channel, sampleCount))/2;
+				}
+
+				if (workingSample != sideChannel.getSample(channel, sampleCount)) {
+					//DBG("Working Sample: " << workingSample << "	Side Channel: " << sideChannel.getSample(channel, sampleCount));
+				}
+
+				channelData[sampleCount] = workingSample;
 			}
-
-			//if(btnEncodeMode){
-			workingSample + (workingSample + sideChannel.getSample(channel, sampleCount))/2;
-			/*} else{
-				workingSample + (workingSample - sideChannel.getSample(channel, sampleCount))/2;
-			}*/
-			
-			channelData[sampleCount] = workingSample;
-
         }
     }
 

@@ -15,12 +15,13 @@
 JuceNrProjectAudioProcessorEditor::JuceNrProjectAudioProcessorEditor (JuceNrProjectAudioProcessor& p)
     : AudioProcessorEditor (&p), processor (p)
 {
-	setSize(800, 1000);
+	setSize(800, 900);
 
 	enum RadioButtonIds {
 		EncodingButtons = 1001,
 		AlgorithmButtons = 1002
 	};
+
 
     gainSliderValue = std::make_unique<AudioProcessorValueTreeState::SliderAttachment>(processor.treeState, "gain", gainSlider);
 	decibelLimitSliderValue = std::make_unique<AudioProcessorValueTreeState::SliderAttachment>(processor.treeState, "dbLimit", decibelLimitSlider);
@@ -32,7 +33,14 @@ JuceNrProjectAudioProcessorEditor::JuceNrProjectAudioProcessorEditor (JuceNrProj
 	releaseMsSliderValue = std::make_unique<AudioProcessorValueTreeState::SliderAttachment>(processor.treeState, "releaseMs", releaseMsSlider);
 
 	encodeSelection = std::make_unique<AudioProcessorValueTreeState::ButtonAttachment>(processor.treeState, "encodeBtn", encodeToggle);
-	decodeSelection = std::make_unique<AudioProcessorValueTreeState::ButtonAttachment>(processor.treeState, "decodeBtn", decodeToggle);
+	nrEnabledSelection = std::make_unique<AudioProcessorValueTreeState::ButtonAttachment>(processor.treeState, "noiseReductionOnBtn", nrEnabledToggle);
+
+	//NR Enabled Toggle Adjustment
+	addAndMakeVisible(nrEnabledLabel);
+	nrEnabledLabel.setText("Noise Reduction Enabled", dontSendNotification);
+
+	nrEnabledToggle.setClickingTogglesState(true);
+	addAndMakeVisible(nrEnabledToggle);
 
 	//Encode Toggle Adjustment
 	addAndMakeVisible(conversionModeLabel);
@@ -43,12 +51,8 @@ JuceNrProjectAudioProcessorEditor::JuceNrProjectAudioProcessorEditor (JuceNrProj
 
 	encodeToggle.setClickingTogglesState(true);
 	decodeToggle.setClickingTogglesState(true);
-
-	encodeToggle.setToggleState(true, false);
-
 	addAndMakeVisible(encodeToggle);
 	addAndMakeVisible(decodeToggle);
-
 
 	// NR Type Toggle Adjustment
 	addAndMakeVisible(algorithmModeLabel);
@@ -209,6 +213,9 @@ void JuceNrProjectAudioProcessorEditor::resized()
 
 	auto sidebarItemHeight = sidebar.getHeight() / 10;
 	auto sidebarItemMargin = sidebar.getWidth() * 0.02;
+
+	nrEnabledLabel.setBounds(sidebar.removeFromTop(sidebarItemHeight).reduced(sidebarItemMargin));
+	nrEnabledToggle.setBounds(sidebar.removeFromTop(sidebarItemHeight).reduced(sidebarItemMargin));
 
 	conversionModeLabel.setBounds(sidebar.removeFromTop(sidebarItemHeight).reduced(sidebarItemMargin));
 	encodeToggle.setBounds(sidebar.removeFromTop(sidebarItemHeight).reduced(sidebarItemMargin));
