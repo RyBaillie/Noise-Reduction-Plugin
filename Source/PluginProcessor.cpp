@@ -64,7 +64,7 @@ AudioProcessorValueTreeState::ParameterLayout JuceNrProjectAudioProcessor::creat
 																			"CompressorThreshold",	//Name
 																			-100.0f,				//Min
 																			100.0f,					//Max
-																			-24.0f					//Default
+																			5.0f					//Default (Previous: -24.0)
 		);
 	auto compressorRatioParam = std::make_unique<AudioParameterFloat>(	"compressorRatio",	//ID
 																		"CompressorRatio",	//Name
