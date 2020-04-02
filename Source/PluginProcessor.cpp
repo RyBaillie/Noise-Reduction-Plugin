@@ -237,19 +237,19 @@ void JuceNrProjectAudioProcessor::processBlock (AudioBuffer<float>& buffer, Midi
 	//In this implementation, the unnaltered path is considered the side channel.
     for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i){
 		buffer.clear(i, 0, buffer.getNumSamples());
-		//sideChannel.copyFrom(i, 0, buffer.getReadPointer(i), buffer.getNumSamples());
 	}
 	sideChannel.makeCopyOf(buffer, true);
 
 	dsp::AudioBlock<float> block(buffer);
 
 	updateFilter();
-	stateVariableFilter.process(dsp::ProcessContextReplacing<float>(block));
+
+	if (*treeState.getRawParameterValue("noiseReductionOnBtn")) {
+		stateVariableFilter.process(dsp::ProcessContextReplacing<float>(block));
+	}
 
     for (int channel = 0; channel < totalNumInputChannels; ++channel){
         auto* channelData = buffer.getWritePointer (channel);
-
-        // ..do something to the data...
 
         for (int sampleCount = 0; sampleCount < buffer.getNumSamples(); ++sampleCount) {
 
@@ -287,15 +287,13 @@ void JuceNrProjectAudioProcessor::processBlock (AudioBuffer<float>& buffer, Midi
 
 				bool btnEncodeMode = *treeState.getRawParameterValue("encodeBtn");
 
+				// Boosts the modified signal by the unmodified one
 				if (btnEncodeMode) {
 					workingSample = (workingSample + sideChannel.getSample(channel, sampleCount)) / 2;
 				}
+				// Cancels the modified signal by the unmodified one
 				else {
-					workingSample = (workingSample - sideChannel.getSample(channel, sampleCount))/2;
-				}
-
-				if (workingSample != sideChannel.getSample(channel, sampleCount)) {
-					//DBG("Working Sample: " << workingSample << "	Side Channel: " << sideChannel.getSample(channel, sampleCount));
+					workingSample = (workingSample - sideChannel.getSample(channel, sampleCount)) / 2;
 				}
 
 				channelData[sampleCount] = workingSample;
