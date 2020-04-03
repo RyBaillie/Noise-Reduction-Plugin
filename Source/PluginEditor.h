@@ -63,6 +63,8 @@ private:
 	Label compressorLabel;
 	Label filterCategoryLabel;
 
+	Label compilationInfoLabel;
+
     
 public:
 

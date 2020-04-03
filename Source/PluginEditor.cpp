@@ -15,7 +15,7 @@
 JuceNrProjectAudioProcessorEditor::JuceNrProjectAudioProcessorEditor (JuceNrProjectAudioProcessor& p)
     : AudioProcessorEditor (&p), processor (p)
 {
-	setSize(800, 900);
+	setSize(800, 500);
 
 	enum RadioButtonIds {
 		EncodingButtons = 1001,
@@ -55,7 +55,7 @@ JuceNrProjectAudioProcessorEditor::JuceNrProjectAudioProcessorEditor (JuceNrProj
 	addAndMakeVisible(decodeToggle);
 
 	// NR Type Toggle Adjustment
-	addAndMakeVisible(algorithmModeLabel);
+	//addAndMakeVisible(algorithmModeLabel);
 	algorithmModeLabel.setText("Algorithm Mode", dontSendNotification);
 
 	typeBToggle.setRadioGroupId(AlgorithmButtons);
@@ -66,18 +66,18 @@ JuceNrProjectAudioProcessorEditor::JuceNrProjectAudioProcessorEditor (JuceNrProj
 
 	typeBToggle.setToggleState(true, false);
 
-	addAndMakeVisible(typeBToggle);
+	//addAndMakeVisible(typeBToggle);
 	//addAndMakeVisible(typeCToggle);
 
 	// Gain Slider Adjustement
 
-	addAndMakeVisible(gainLabel);
+	//addAndMakeVisible(gainLabel);
 	gainLabel.setText("Gain", dontSendNotification);
 	gainLabel.attachToComponent(&gainSlider, false);
 
 	gainSlider.setSliderStyle(Slider::SliderStyle::LinearHorizontal);
 	gainSlider.setTextBoxStyle(Slider::TextBoxBelow, true, 100, 25);
-	addAndMakeVisible(&gainSlider);
+	//addAndMakeVisible(&gainSlider);
 
 	// Decibel Limit Slider Adjustement
 
@@ -91,29 +91,29 @@ JuceNrProjectAudioProcessorEditor::JuceNrProjectAudioProcessorEditor (JuceNrProj
 
 	// Attack (ms) Slider Adjustement
 
-	addAndMakeVisible(attackMsSliderLabel);
+	//addAndMakeVisible(attackMsSliderLabel);
 	attackMsSliderLabel.setText("Attack (ms)", dontSendNotification);
 	attackMsSliderLabel.attachToComponent(&attackMsSlider, false);
 
 	attackMsSlider.setSliderStyle(Slider::SliderStyle::LinearHorizontal);
 	attackMsSlider.setTextBoxStyle(Slider::TextBoxBelow, true, 100, 25);
-	addAndMakeVisible(&attackMsSlider);
+	//addAndMakeVisible(&attackMsSlider);
 
 	// Envelope
 
-	addAndMakeVisible(envelopeLabel);
+	//addAndMakeVisible(envelopeLabel);
 	envelopeLabel.setText("Envelope", dontSendNotification);
 	envelopeLabel.setJustificationType(Justification::centred);
 
 	// Release (ms) Slider Adjustement
 
-	addAndMakeVisible(releaseMsSliderLabel);
+	//addAndMakeVisible(releaseMsSliderLabel);
 	releaseMsSliderLabel.setText("Release (ms)", dontSendNotification);
 	releaseMsSliderLabel.attachToComponent(&releaseMsSlider, false);
 
 	releaseMsSlider.setSliderStyle(Slider::SliderStyle::LinearHorizontal);
 	releaseMsSlider.setTextBoxStyle(Slider::TextBoxBelow, true, 100, 25);
-	addAndMakeVisible(&releaseMsSlider);
+	//addAndMakeVisible(&releaseMsSlider);
 
 	// Filter
 
@@ -168,6 +168,12 @@ JuceNrProjectAudioProcessorEditor::JuceNrProjectAudioProcessorEditor (JuceNrProj
 	compressorRatioSlider.setTextBoxStyle(Slider::TextBoxBelow, true, 100, 25);
 	addAndMakeVisible(&compressorRatioSlider);
 
+	// Compilation Info
+
+	String compileMessage = "Compiled on " __DATE__ " at " __TIME__;
+	addAndMakeVisible(compilationInfoLabel);
+	compilationInfoLabel.setJustificationType(Justification::centred);
+	compilationInfoLabel.setText(compileMessage, dontSendNotification);
 }
 
 JuceNrProjectAudioProcessorEditor::~JuceNrProjectAudioProcessorEditor()
@@ -195,12 +201,12 @@ void JuceNrProjectAudioProcessorEditor::resized()
 
 	auto areaItemHeight = area.getHeight() / 12;
 
-	gainSlider.setBounds(area.removeFromTop(areaItemHeight));
+	//gainSlider.setBounds(area.removeFromTop(areaItemHeight));
 	decibelLimitSlider.setBounds(area.removeFromTop(areaItemHeight));
 
-	envelopeLabel.setBounds(area.removeFromTop(areaItemHeight));
+	/*envelopeLabel.setBounds(area.removeFromTop(areaItemHeight));
 	attackMsSlider.setBounds(area.removeFromTop(areaItemHeight));
-	releaseMsSlider.setBounds(area.removeFromTop(areaItemHeight));
+	releaseMsSlider.setBounds(area.removeFromTop(areaItemHeight));*/
 
 	filterCategoryLabel.setBounds(area.removeFromTop(areaItemHeight));
 	filterCutoffSlider.setBounds(area.removeFromTop(areaItemHeight));
@@ -221,7 +227,12 @@ void JuceNrProjectAudioProcessorEditor::resized()
 	encodeToggle.setBounds(sidebar.removeFromTop(sidebarItemHeight).reduced(sidebarItemMargin));
 	decodeToggle.setBounds(sidebar.removeFromTop(sidebarItemHeight).reduced(sidebarItemMargin));
 
-	algorithmModeLabel.setBounds(sidebar.removeFromTop(sidebarItemHeight).reduced(sidebarItemMargin));
+	/*algorithmModeLabel.setBounds(sidebar.removeFromTop(sidebarItemHeight).reduced(sidebarItemMargin));
 	typeBToggle.setBounds(sidebar.removeFromTop(sidebarItemHeight).reduced(sidebarItemMargin));
-	typeCToggle.setBounds(sidebar.removeFromTop(sidebarItemHeight).reduced(sidebarItemMargin));
+	typeCToggle.setBounds(sidebar.removeFromTop(sidebarItemHeight).reduced(sidebarItemMargin));*/
+
+
+	auto footerItemHeight = footer.getHeight();
+
+	compilationInfoLabel.setBounds(footer.removeFromTop(footerItemHeight));
 }
