@@ -58,7 +58,7 @@ AudioProcessorValueTreeState::ParameterLayout JuceNrProjectAudioProcessor::creat
 																	"DbLimit",		//Name
 																	-200.0f,		//Min
 																	200.0f,			//Max
-																	1.0f			//Default
+																	5.0f			//Default
 		);
 	auto compressorThresholdParam = std::make_unique<AudioParameterFloat>(	"compressorThreshold",	//ID
 																			"CompressorThreshold",	//Name
@@ -70,19 +70,19 @@ AudioProcessorValueTreeState::ParameterLayout JuceNrProjectAudioProcessor::creat
 																		"CompressorRatio",	//Name
 																		0.0f,				//Min
 																		100.0f,				//Max
-																		10.0f				//Default
+																		5.0f				//Default
 		);
 	auto attackMsParam = std::make_unique<AudioParameterFloat>(	"attackMs",		//ID
 																"AttackMs",		//Name
 																0.0f,			//Min
 																1000.0f,		//Max
-																100.0f			//Default
+																300.0f			//Default
 		);
 	auto releaseMsParam = std::make_unique<AudioParameterFloat>(	"releaseMs",	//ID
 																	"ReleaseMs",	//Name
 																	0.0f,			//Min
 																	1000.0f,		//Max
-																	100.0f			//Default
+																	200.0f			//Default
 		);
 	auto encodeBtnParam = std::make_unique<AudioParameterBool>(		"encodeBtn",	//ID
 																	"EncodeBtn",	//Name
@@ -224,7 +224,6 @@ void JuceNrProjectAudioProcessor::processBlock (AudioBuffer<float>& buffer, Midi
 	auto sliderGainValue = treeState.getRawParameterValue("gain");
 	
 	auto sliderDecibelValue = treeState.getRawParameterValue("dbLimit");
-	auto sliderCompressorThresholdValue = treeState.getRawParameterValue("compressorThreshold");
 	auto sliderCompressorRatioValue = treeState.getRawParameterValue("compressorRatio");
 	auto sliderAttackMsValue = treeState.getRawParameterValue("attackMs");
 	auto sliderReleaseMsValue = treeState.getRawParameterValue("releaseMs");
@@ -232,9 +231,8 @@ void JuceNrProjectAudioProcessor::processBlock (AudioBuffer<float>& buffer, Midi
 	setAttack(*sliderAttackMsValue);
 	setRelease(*sliderReleaseMsValue);
 	setRatio(*sliderCompressorRatioValue);
-	setThreshold(*sliderCompressorThresholdValue);
 
-	//In this implementation, the unnaltered path is considered the side channel.
+	//In this implementation, the side channel is buffer and the passthrough channel is buffer's copy.
     for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i){
 		buffer.clear(i, 0, buffer.getNumSamples());
 	}
@@ -253,17 +251,20 @@ void JuceNrProjectAudioProcessor::processBlock (AudioBuffer<float>& buffer, Midi
 
         for (int sampleCount = 0; sampleCount < buffer.getNumSamples(); ++sampleCount) {
 
+			float workingSample = buffer.getSample(channel, sampleCount);
+
 			if (*treeState.getRawParameterValue("noiseReductionOnBtn")) {
 
 				float detectionSignal = fabs(buffer.getSample(channel, sampleCount));
-				detectionSignal = amplitudeToDecibel(detectionSignal);
-				float workingSample = buffer.getSample(channel, sampleCount);
+				//detectionSignal = amplitudeToDecibel(detectionSignal);
 
 				if (buffer.getSample(channel, sampleCount) > m_Envelope) {
-					m_Envelope = m_Envelope + m_Attack * (buffer.getSample(channel, sampleCount) - m_Envelope);
+					m_Envelope = m_Envelope + m_Attack * 
+						(buffer.getSample(channel, sampleCount) - m_Envelope);
 				}
 				else if (buffer.getSample(channel, sampleCount) < m_Envelope) {
-					m_Envelope = m_Envelope + m_Release * (buffer.getSample(channel, sampleCount) - m_Envelope);
+					m_Envelope = m_Envelope + m_Release * 
+						(buffer.getSample(channel, sampleCount) - m_Envelope);
 				}
 
 				float db = Decibels::gainToDecibels(fabs(m_Envelope));
@@ -274,15 +275,11 @@ void JuceNrProjectAudioProcessor::processBlock (AudioBuffer<float>& buffer, Midi
 				//Check signal is quiet enough
 				if (db <= dbLimit) {
 
-					//If above the threshold, do compressor actions
-					if (detectionSignal > m_Threshold) {
-
 						float scale = 1.0f - (1.0f / m_Ratio);
-						float compressionGain = scale * (m_Threshold - m_Envelope);
+						float compressionGain = scale * (dbLimit - m_Envelope);
 						compressionGain = decibelToAmplitude(compressionGain);
 						workingSample = workingSample * compressionGain;
 
-					}
 				}
 
 				bool btnEncodeMode = *treeState.getRawParameterValue("encodeBtn");
@@ -295,9 +292,9 @@ void JuceNrProjectAudioProcessor::processBlock (AudioBuffer<float>& buffer, Midi
 				else {
 					workingSample = (workingSample - sideChannel.getSample(channel, sampleCount)) / 2;
 				}
-
-				channelData[sampleCount] = workingSample;
 			}
+
+			channelData[sampleCount] = workingSample;
         }
     }
 
@@ -366,23 +363,19 @@ void JuceNrProjectAudioProcessor::updateFilter() {
 	auto filterResonanceValue = *treeState.getRawParameterValue("resonance");
 
 	//make filter High Pass
-	stateVariableFilter.state->type = dsp::StateVariableFilter::Parameters<float>::Type::highPass;
-	stateVariableFilter.state->setCutOffFrequency(lastSampleRate, filterSliderValue, filterResonanceValue);
+	stateVariableFilter.state->type = 
+		dsp::StateVariableFilter::Parameters<float>::Type::highPass;
+	stateVariableFilter.state->setCutOffFrequency
+	(lastSampleRate, filterSliderValue, filterResonanceValue);
 
 }
 //==============================================================================
 
 // Compressor ==================================================================
-float JuceNrProjectAudioProcessor::getThreshold() {
-	return m_Threshold;
-}
+
 
 float JuceNrProjectAudioProcessor::getRatio() {
 	return m_Ratio;
-}
-
-void JuceNrProjectAudioProcessor::setThreshold(float threshold) {
-	m_Threshold = threshold;
 }
 
 void JuceNrProjectAudioProcessor::setRatio(float ratio) {
