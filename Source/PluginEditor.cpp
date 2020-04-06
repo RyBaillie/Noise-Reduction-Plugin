@@ -22,10 +22,6 @@ JuceNrProjectAudioProcessorEditor::JuceNrProjectAudioProcessorEditor (JuceNrProj
 		AlgorithmButtons = 1002
 	};
 
-
-    gainSliderValue = 
-		std::make_unique<AudioProcessorValueTreeState::SliderAttachment>
-		(processor.treeState, "gain", gainSlider);
 	decibelLimitSliderValue = 
 		std::make_unique<AudioProcessorValueTreeState::SliderAttachment>
 		(processor.treeState, "dbLimit", decibelLimitSlider);
@@ -35,9 +31,6 @@ JuceNrProjectAudioProcessorEditor::JuceNrProjectAudioProcessorEditor (JuceNrProj
 	filterResonanceSliderValue = 
 		std::make_unique<AudioProcessorValueTreeState::SliderAttachment>
 		(processor.treeState, "resonance", filterResonanceSlider);
-	compressorThresholdSliderValue = 
-		std::make_unique<AudioProcessorValueTreeState::SliderAttachment>
-		(processor.treeState, "compressorThreshold", compressorThresholdSlider);
 	compressorRatioSliderValue = 
 		std::make_unique<AudioProcessorValueTreeState::SliderAttachment>
 		(processor.treeState, "compressorRatio", compressorRatioSlider);
@@ -75,6 +68,7 @@ JuceNrProjectAudioProcessorEditor::JuceNrProjectAudioProcessorEditor (JuceNrProj
 	addAndMakeVisible(decodeToggle);
 
 	// NR Type Toggle Adjustment
+
 	//addAndMakeVisible(algorithmModeLabel);
 	algorithmModeLabel.setText("Algorithm Mode", dontSendNotification);
 
@@ -88,16 +82,6 @@ JuceNrProjectAudioProcessorEditor::JuceNrProjectAudioProcessorEditor (JuceNrProj
 
 	//addAndMakeVisible(typeBToggle);
 	//addAndMakeVisible(typeCToggle);
-
-	// Gain Slider Adjustement
-
-	//addAndMakeVisible(gainLabel);
-	gainLabel.setText("Gain", dontSendNotification);
-	gainLabel.attachToComponent(&gainSlider, false);
-
-	gainSlider.setSliderStyle(Slider::SliderStyle::LinearHorizontal);
-	gainSlider.setTextBoxStyle(Slider::TextBoxBelow, true, 100, 25);
-	//addAndMakeVisible(&gainSlider);
 
 	// Decibel Limit Slider Adjustement
 
@@ -168,16 +152,6 @@ JuceNrProjectAudioProcessorEditor::JuceNrProjectAudioProcessorEditor (JuceNrProj
 	compressorLabel.setText("Compressor", dontSendNotification);
 	compressorLabel.setJustificationType(Justification::centred);
 
-	// Compressor Threshold Slider Adjustement
-
-	addAndMakeVisible(compressorThresholdLabel);
-	compressorThresholdLabel.setText("Threshold", dontSendNotification);
-	compressorThresholdLabel.attachToComponent(&compressorThresholdSlider, false);
-
-	compressorThresholdSlider.setSliderStyle(Slider::SliderStyle::LinearHorizontal);
-	compressorThresholdSlider.setTextBoxStyle(Slider::TextBoxBelow, true, 100, 25);
-	addAndMakeVisible(&compressorThresholdSlider);
-
 	// Compressor Ratio Slider Adjustement
 
 	addAndMakeVisible(compressorRatioLabel);
@@ -221,8 +195,6 @@ void JuceNrProjectAudioProcessorEditor::resized()
 
 	auto areaItemHeight = area.getHeight() / 12;
 
-	//gainSlider.setBounds(area.removeFromTop(areaItemHeight));
-
 	/*envelopeLabel.setBounds(area.removeFromTop(areaItemHeight));
 	attackMsSlider.setBounds(area.removeFromTop(areaItemHeight));
 	releaseMsSlider.setBounds(area.removeFromTop(areaItemHeight));*/
@@ -233,10 +205,8 @@ void JuceNrProjectAudioProcessorEditor::resized()
 
 	compressorLabel.setBounds(area.removeFromTop(areaItemHeight));
 	decibelLimitSlider.setBounds(area.removeFromTop(areaItemHeight));
-	compressorThresholdSlider.setBounds(area.removeFromTop(areaItemHeight));
 	compressorRatioSlider.setBounds(area.removeFromTop(areaItemHeight));
 	
-
 	auto sidebarItemHeight = sidebar.getHeight() / 10;
 	auto sidebarItemMargin = sidebar.getWidth() * 0.02;
 

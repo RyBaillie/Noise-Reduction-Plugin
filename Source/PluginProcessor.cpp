@@ -36,12 +36,6 @@ JuceNrProjectAudioProcessor::~JuceNrProjectAudioProcessor()
 AudioProcessorValueTreeState::ParameterLayout JuceNrProjectAudioProcessor::createParameterLayout()
 {
     std::vector <std::unique_ptr<RangedAudioParameter>> params;
-    auto gainParam = std::make_unique<AudioParameterFloat>( "gain", //ID
-															"Gain", //Name
-															-48.0f, //Min
-															0.0f,	//Max
-															0.0f	//Default -15.0f
-		); 
 	auto filterCutoffParam = std::make_unique<AudioParameterFloat>(	"cutoff",	//ID
 																	"Cutoff",		//Name
 																	20.0f,			//Min
@@ -60,12 +54,7 @@ AudioProcessorValueTreeState::ParameterLayout JuceNrProjectAudioProcessor::creat
 																	200.0f,			//Max
 																	5.0f			//Default
 		);
-	auto compressorThresholdParam = std::make_unique<AudioParameterFloat>(	"compressorThreshold",	//ID
-																			"CompressorThreshold",	//Name
-																			-100.0f,				//Min
-																			100.0f,					//Max
-																			5.0f					//Default (Previous: -24.0)
-		);
+
 	auto compressorRatioParam = std::make_unique<AudioParameterFloat>(	"compressorRatio",	//ID
 																		"CompressorRatio",	//Name
 																		0.0f,				//Min
@@ -97,9 +86,7 @@ AudioProcessorValueTreeState::ParameterLayout JuceNrProjectAudioProcessor::creat
 	params.push_back(std::move(encodeBtnParam));
 	params.push_back(std::move(filterCutoffParam));
 	params.push_back(std::move(filterResonanceParam));
-    params.push_back(std::move(gainParam));
 	params.push_back(std::move(decibelLimitParam));
-	params.push_back(std::move(compressorThresholdParam));
 	params.push_back(std::move(compressorRatioParam));
 	params.push_back(std::move(attackMsParam));
 	params.push_back(std::move(releaseMsParam));
@@ -220,8 +207,6 @@ void JuceNrProjectAudioProcessor::processBlock (AudioBuffer<float>& buffer, Midi
     ScopedNoDenormals noDenormals;
     auto totalNumInputChannels  = getTotalNumInputChannels();
     auto totalNumOutputChannels = getTotalNumOutputChannels();
-
-	auto sliderGainValue = treeState.getRawParameterValue("gain");
 	
 	auto sliderDecibelValue = treeState.getRawParameterValue("dbLimit");
 	auto sliderCompressorRatioValue = treeState.getRawParameterValue("compressorRatio");
@@ -255,9 +240,6 @@ void JuceNrProjectAudioProcessor::processBlock (AudioBuffer<float>& buffer, Midi
 
 			if (*treeState.getRawParameterValue("noiseReductionOnBtn")) {
 
-				float detectionSignal = fabs(buffer.getSample(channel, sampleCount));
-				//detectionSignal = amplitudeToDecibel(detectionSignal);
-
 				if (buffer.getSample(channel, sampleCount) > m_Envelope) {
 					m_Envelope = m_Envelope + m_Attack * 
 						(buffer.getSample(channel, sampleCount) - m_Envelope);
@@ -270,15 +252,10 @@ void JuceNrProjectAudioProcessor::processBlock (AudioBuffer<float>& buffer, Midi
 				float db = Decibels::gainToDecibels(fabs(m_Envelope));
 				setDecibelLimit(*sliderDecibelValue);
 
-				workingSample = workingSample * Decibels::decibelsToGain(*sliderGainValue);
-
 				//Check signal is quiet enough
 				if (db <= dbLimit) {
 
-						float scale = 1.0f - (1.0f / m_Ratio);
-						float compressionGain = scale * (dbLimit - m_Envelope);
-						compressionGain = decibelToAmplitude(compressionGain);
-						workingSample = workingSample * compressionGain;
+					workingSample = compressAudio(workingSample);
 
 				}
 
@@ -382,6 +359,20 @@ void JuceNrProjectAudioProcessor::setRatio(float ratio) {
 	m_Ratio = ratio;
 }
 
+float JuceNrProjectAudioProcessor::compressAudio(float sample) {
+
+	float scale = 1.0f - (1.0f / m_Ratio);
+	float compressionGain = scale * (dbLimit - m_Envelope);
+	compressionGain = decibelToAmplitude(compressionGain);
+	return sample * compressionGain;
+
+}
+//==============================================================================
+
+void JuceNrProjectAudioProcessor::setDecibelLimit(float db) {
+	dbLimit = db;
+}
+
 float JuceNrProjectAudioProcessor::amplitudeToDecibel(float amplitude) {
 	amplitude = std::max(amplitude, BOUND_LINEAR);
 	return 20.0f * log10(amplitude);
@@ -389,9 +380,4 @@ float JuceNrProjectAudioProcessor::amplitudeToDecibel(float amplitude) {
 
 float JuceNrProjectAudioProcessor::decibelToAmplitude(float decibel) {
 	return pow(10.0f, decibel / 20.0f);
-}
-//==============================================================================
-
-void JuceNrProjectAudioProcessor::setDecibelLimit(float db) {
-	dbLimit = db;
 }

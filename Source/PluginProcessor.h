@@ -63,10 +63,6 @@ public:
 	void setRelease(float release);
 	//===============================================================================
 
-	// Filter //======================================================================
-	//void applyFilter(juce::dsp::AudioBlock<float> Block);
-	//================================================================================
-
 	// Compressor //===================================================================
 	float getRatio();
 	void setRatio(float ratio);
@@ -104,11 +100,11 @@ private:
 	const float BOUND_LOGARITHM = -96.0f;
 	const float BOUND_LINEAR = decibelToAmplitude(BOUND_LOGARITHM);
 
-	float m_Threshold = 0.0f;
 	float m_Ratio = 1.0f;
 
 	float amplitudeToDecibel(float amplitude);
 	float decibelToAmplitude(float decibel);
+	float compressAudio(float sample);
 	//================================================================================
 
     //==============================================================================
