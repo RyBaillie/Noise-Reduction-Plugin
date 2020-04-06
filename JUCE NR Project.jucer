@@ -57,7 +57,7 @@
     <MODULE id="juce_opengl" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
   </MODULES>
   <LIVE_SETTINGS>
-    <WINDOWS systemHeaderPath="E:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Tools\MSVC\14.22.27905\include&#10;C:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\cppwinrt\winrt&#10;C:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\shared&#10;C:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\ucrt&#10;C:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\um&#10;C:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\winrt"/>
+    <WINDOWS/>
   </LIVE_SETTINGS>
   <JUCEOPTIONS JUCE_VST3_CAN_REPLACE_VST2="0" JUCE_STRICT_REFCOUNTEDPOINTER="1"/>
 </JUCERPROJECT>
