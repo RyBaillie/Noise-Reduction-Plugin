@@ -31,11 +31,9 @@ private:
     // access the processor object that created it.
     JuceNrProjectAudioProcessor& processor;
 
-    Slider gainSlider;
 	Slider decibelLimitSlider;
 	Slider filterCutoffSlider;
 	Slider filterResonanceSlider;
-	Slider compressorThresholdSlider;
 	Slider compressorRatioSlider;
 	Slider attackMsSlider;
 	Slider releaseMsSlider;
@@ -52,7 +50,6 @@ private:
 	Label decibelLimitLabel;
 	Label filterCutoffLabel;
 	Label filterResonanceLabel;
-	Label compressorThresholdLabel;
 	Label compressorRatioLabel;
 	Label conversionModeLabel;
 	Label algorithmModeLabel;
@@ -68,9 +65,7 @@ private:
     
 public:
 
-    std::unique_ptr <AudioProcessorValueTreeState::SliderAttachment> gainSliderValue;
 	std::unique_ptr <AudioProcessorValueTreeState::SliderAttachment> decibelLimitSliderValue;
-	std::unique_ptr <AudioProcessorValueTreeState::SliderAttachment> compressorThresholdSliderValue;
 	std::unique_ptr <AudioProcessorValueTreeState::SliderAttachment> compressorRatioSliderValue;
 	std::unique_ptr <AudioProcessorValueTreeState::SliderAttachment> filterCutoffSliderValue;
 	std::unique_ptr <AudioProcessorValueTreeState::SliderAttachment> filterResonanceSliderValue;

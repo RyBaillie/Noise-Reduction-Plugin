@@ -22,18 +22,31 @@ JuceNrProjectAudioProcessorEditor::JuceNrProjectAudioProcessorEditor (JuceNrProj
 		AlgorithmButtons = 1002
 	};
 
+	decibelLimitSliderValue = 
+		std::make_unique<AudioProcessorValueTreeState::SliderAttachment>
+		(processor.treeState, "dbLimit", decibelLimitSlider);
+	filterCutoffSliderValue = 
+		std::make_unique<AudioProcessorValueTreeState::SliderAttachment>
+		(processor.treeState, "cutoff", filterCutoffSlider);
+	filterResonanceSliderValue = 
+		std::make_unique<AudioProcessorValueTreeState::SliderAttachment>
+		(processor.treeState, "resonance", filterResonanceSlider);
+	compressorRatioSliderValue = 
+		std::make_unique<AudioProcessorValueTreeState::SliderAttachment>
+		(processor.treeState, "compressorRatio", compressorRatioSlider);
+	attackMsSliderValue = 
+		std::make_unique<AudioProcessorValueTreeState::SliderAttachment>
+		(processor.treeState, "attackMs", attackMsSlider);
+	releaseMsSliderValue = 
+		std::make_unique<AudioProcessorValueTreeState::SliderAttachment>
+		(processor.treeState, "releaseMs", releaseMsSlider);
 
-    gainSliderValue = std::make_unique<AudioProcessorValueTreeState::SliderAttachment>(processor.treeState, "gain", gainSlider);
-	decibelLimitSliderValue = std::make_unique<AudioProcessorValueTreeState::SliderAttachment>(processor.treeState, "dbLimit", decibelLimitSlider);
-	filterCutoffSliderValue = std::make_unique<AudioProcessorValueTreeState::SliderAttachment>(processor.treeState, "cutoff", filterCutoffSlider);
-	filterResonanceSliderValue = std::make_unique<AudioProcessorValueTreeState::SliderAttachment>(processor.treeState, "resonance", filterResonanceSlider);
-	compressorThresholdSliderValue = std::make_unique<AudioProcessorValueTreeState::SliderAttachment>(processor.treeState, "compressorThreshold", compressorThresholdSlider);
-	compressorRatioSliderValue = std::make_unique<AudioProcessorValueTreeState::SliderAttachment>(processor.treeState, "compressorRatio", compressorRatioSlider);
-	attackMsSliderValue = std::make_unique<AudioProcessorValueTreeState::SliderAttachment>(processor.treeState, "attackMs", attackMsSlider);
-	releaseMsSliderValue = std::make_unique<AudioProcessorValueTreeState::SliderAttachment>(processor.treeState, "releaseMs", releaseMsSlider);
-
-	encodeSelection = std::make_unique<AudioProcessorValueTreeState::ButtonAttachment>(processor.treeState, "encodeBtn", encodeToggle);
-	nrEnabledSelection = std::make_unique<AudioProcessorValueTreeState::ButtonAttachment>(processor.treeState, "noiseReductionOnBtn", nrEnabledToggle);
+	encodeSelection = 
+		std::make_unique<AudioProcessorValueTreeState::ButtonAttachment>
+		(processor.treeState, "encodeBtn", encodeToggle);
+	nrEnabledSelection = 
+		std::make_unique<AudioProcessorValueTreeState::ButtonAttachment>
+		(processor.treeState, "noiseReductionOnBtn", nrEnabledToggle);
 
 	//NR Enabled Toggle Adjustment
 	addAndMakeVisible(nrEnabledLabel);
@@ -55,6 +68,7 @@ JuceNrProjectAudioProcessorEditor::JuceNrProjectAudioProcessorEditor (JuceNrProj
 	addAndMakeVisible(decodeToggle);
 
 	// NR Type Toggle Adjustment
+
 	//addAndMakeVisible(algorithmModeLabel);
 	algorithmModeLabel.setText("Algorithm Mode", dontSendNotification);
 
@@ -68,16 +82,6 @@ JuceNrProjectAudioProcessorEditor::JuceNrProjectAudioProcessorEditor (JuceNrProj
 
 	//addAndMakeVisible(typeBToggle);
 	//addAndMakeVisible(typeCToggle);
-
-	// Gain Slider Adjustement
-
-	//addAndMakeVisible(gainLabel);
-	gainLabel.setText("Gain", dontSendNotification);
-	gainLabel.attachToComponent(&gainSlider, false);
-
-	gainSlider.setSliderStyle(Slider::SliderStyle::LinearHorizontal);
-	gainSlider.setTextBoxStyle(Slider::TextBoxBelow, true, 100, 25);
-	//addAndMakeVisible(&gainSlider);
 
 	// Decibel Limit Slider Adjustement
 
@@ -148,16 +152,6 @@ JuceNrProjectAudioProcessorEditor::JuceNrProjectAudioProcessorEditor (JuceNrProj
 	compressorLabel.setText("Compressor", dontSendNotification);
 	compressorLabel.setJustificationType(Justification::centred);
 
-	// Compressor Threshold Slider Adjustement
-
-	addAndMakeVisible(compressorThresholdLabel);
-	compressorThresholdLabel.setText("Threshold", dontSendNotification);
-	compressorThresholdLabel.attachToComponent(&compressorThresholdSlider, false);
-
-	compressorThresholdSlider.setSliderStyle(Slider::SliderStyle::LinearHorizontal);
-	compressorThresholdSlider.setTextBoxStyle(Slider::TextBoxBelow, true, 100, 25);
-	addAndMakeVisible(&compressorThresholdSlider);
-
 	// Compressor Ratio Slider Adjustement
 
 	addAndMakeVisible(compressorRatioLabel);
@@ -170,7 +164,7 @@ JuceNrProjectAudioProcessorEditor::JuceNrProjectAudioProcessorEditor (JuceNrProj
 
 	// Compilation Info
 
-	String compileMessage = "Compiled on " __DATE__ " at " __TIME__;
+	String compileMessage = "Last changed on " __DATE__ " at " __TIME__;
 	addAndMakeVisible(compilationInfoLabel);
 	compilationInfoLabel.setJustificationType(Justification::centred);
 	compilationInfoLabel.setText(compileMessage, dontSendNotification);
@@ -201,9 +195,6 @@ void JuceNrProjectAudioProcessorEditor::resized()
 
 	auto areaItemHeight = area.getHeight() / 12;
 
-	//gainSlider.setBounds(area.removeFromTop(areaItemHeight));
-	decibelLimitSlider.setBounds(area.removeFromTop(areaItemHeight));
-
 	/*envelopeLabel.setBounds(area.removeFromTop(areaItemHeight));
 	attackMsSlider.setBounds(area.removeFromTop(areaItemHeight));
 	releaseMsSlider.setBounds(area.removeFromTop(areaItemHeight));*/
@@ -213,10 +204,9 @@ void JuceNrProjectAudioProcessorEditor::resized()
 	filterResonanceSlider.setBounds(area.removeFromTop(areaItemHeight));
 
 	compressorLabel.setBounds(area.removeFromTop(areaItemHeight));
-	compressorThresholdSlider.setBounds(area.removeFromTop(areaItemHeight));
+	decibelLimitSlider.setBounds(area.removeFromTop(areaItemHeight));
 	compressorRatioSlider.setBounds(area.removeFromTop(areaItemHeight));
 	
-
 	auto sidebarItemHeight = sidebar.getHeight() / 10;
 	auto sidebarItemMargin = sidebar.getWidth() * 0.02;
 
@@ -227,9 +217,9 @@ void JuceNrProjectAudioProcessorEditor::resized()
 	encodeToggle.setBounds(sidebar.removeFromTop(sidebarItemHeight).reduced(sidebarItemMargin));
 	decodeToggle.setBounds(sidebar.removeFromTop(sidebarItemHeight).reduced(sidebarItemMargin));
 
-	/*algorithmModeLabel.setBounds(sidebar.removeFromTop(sidebarItemHeight).reduced(sidebarItemMargin));
+	algorithmModeLabel.setBounds(sidebar.removeFromTop(sidebarItemHeight).reduced(sidebarItemMargin));
 	typeBToggle.setBounds(sidebar.removeFromTop(sidebarItemHeight).reduced(sidebarItemMargin));
-	typeCToggle.setBounds(sidebar.removeFromTop(sidebarItemHeight).reduced(sidebarItemMargin));*/
+	typeCToggle.setBounds(sidebar.removeFromTop(sidebarItemHeight).reduced(sidebarItemMargin));
 
 
 	auto footerItemHeight = footer.getHeight();
